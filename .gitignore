@@ -30,3 +30,15 @@ proguard/
 
 # Android Studio captures folder
 captures/
+
+#Intellij settings
+.idea/
+
+#Keil
+Objects/
+Listings/
+*ykhan14
+#add your short usernames
+
+#( ͡° ͜ʖ ͡° ) lenny face
+#<3
