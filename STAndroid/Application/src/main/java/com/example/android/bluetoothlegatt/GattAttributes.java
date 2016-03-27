@@ -17,6 +17,7 @@
 package com.example.android.bluetoothlegatt;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -59,9 +60,14 @@ public class GattAttributes {
             // Bit of bit fiddling to make sure "2" is printed as "002"
             hex_strings[i] = Integer.toHexString(0x100 | components[i]).substring(1);
         }
-        String hyphened_uuid = TextUtils.join("", hex_strings).replaceAll(
-                "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
-                "$1-$2-$3-$4-$5");
+        String hyphened_uuid = null;
+        try {
+            hyphened_uuid = TextUtils.join("", hex_strings).replaceAll(
+                    "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
+                    "$1-$2-$3-$4-$5");
+        } catch (Exception e) {
+            Log.d("GattAttributes", "Encountered exception regexing on UUID components: ", e);
+        }
 
         return UUID.fromString(hyphened_uuid).toString();
     }
