@@ -18,6 +18,8 @@ SPI_HandleTypeDef    SpiHandle;
 // Function def
 uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi);
 void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data);
+static uint8_t SPI_SendByte(uint8_t byte);
+void SPI_Init(void);
 
 // Variables + function names
 
@@ -54,8 +56,62 @@ void Thread_Bluetooth(void const *argument){
 		// Temperature
 		float temp = getSetValue(1,0,2);
 		
+		// Now how do I transmit these values via SPI?
+		// We will need some sort of data encoding on this end:
+		// 0 -> roll
+		// 1 -> pitch
+		// 2 -> temp
+		SPI_SendByte(0);
+		SPI_SendByte((int)(roll * 100));
+		SPI_SendByte(1);
+		SPI_SendByte((int)(pitch * 100));
+		SPI_SendByte(2);
+		SPI_SendByte((int)(temp * 100));
 		
 	}
+}
+
+void SPI_Init(void)
+{
+  uint8_t ctrl = 0x00;
+
+  /* Configure the low level interface ---------------------------------------*/
+	  /* SPI configuration -------------------------------------------------------*/
+	__HAL_RCC_SPI1_CLK_ENABLE();
+	
+  HAL_SPI_DeInit(&SpiHandle);
+  SpiHandle.Instance 							  = SPI1;
+  SpiHandle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_4;
+  SpiHandle.Init.Direction 					= SPI_DIRECTION_2LINES;
+  SpiHandle.Init.CLKPhase 					= SPI_PHASE_1EDGE;
+  SpiHandle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
+  SpiHandle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
+  SpiHandle.Init.CRCPolynomial 			= 7;
+  SpiHandle.Init.DataSize 					= SPI_DATASIZE_8BIT;
+  SpiHandle.Init.FirstBit 					= SPI_FIRSTBIT_MSB;
+  SpiHandle.Init.NSS 								= SPI_NSS_SOFT;
+  SpiHandle.Init.TIMode 						= SPI_TIMODE_DISABLED;
+  SpiHandle.Init.Mode 							= SPI_MODE_MASTER;
+	if (HAL_SPI_Init(&SpiHandle) != HAL_OK) {printf ("ERROR: Error in initialising SPI1 \n");};
+  
+	__HAL_SPI_ENABLE(&SpiHandle);
+  
+//	/* Configure MEMS: data rate, update mode and axes */
+//  ctrl = (uint8_t) (LIS3DSH_InitStruct->Power_Mode_Output_DataRate | \
+//										LIS3DSH_InitStruct->Continous_Update           | \
+//										LIS3DSH_InitStruct->Axes_Enable);
+
+
+//  /* Write value to MEMS CTRL_REG4 regsister */
+//  LIS3DSH_Write(&ctrl, LIS3DSH_CTRL_REG4, 1);
+
+//	/* Configure MEMS: Anti-aliasing filter, full scale, self test  */
+//	ctrl = (uint8_t) (LIS3DSH_InitStruct->AA_Filter_BW | \
+//										LIS3DSH_InitStruct->Full_Scale   | \
+//										LIS3DSH_InitStruct->Self_Test);
+
+//	/* Write value to MEMS CTRL_REG5 regsister */
+//	LIS3DSH_Write(&ctrl, LIS3DSH_CTRL_REG5, 1);
 }
 
 void sendFloatValue(SPI_HandleTypeDef *spi, float value) {
