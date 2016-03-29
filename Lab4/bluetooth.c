@@ -13,7 +13,55 @@
 
 #define SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 __IO uint32_t  SPITimeout = SPI_FLAG_TIMEOUT;
+#define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
 SPI_HandleTypeDef    SpiHandle;
+
+/**
+  * @brief  SPI Interface pins
+  */
+#define SPI                       SPI1
+#define SPI_CLK                   RCC_APB2Periph_SPI1
+
+#define SPI_SCK_PIN               GPIO_PIN_5                  /* PA.05 */
+#define SPI_SCK_GPIO_PORT         GPIOA                       /* GPIOA */
+#define SPI_SCK_GPIO_CLK          RCC_AHB1Periph_GPIOA
+#define SPI_SCK_SOURCE            GPIO_PinSource5
+#define SPI_SCK_AF                GPIO_AF5_SPI1
+
+#define SPI_MISO_PIN              GPIO_PIN_6                  /* PA.6 */
+#define SPI_MISO_GPIO_PORT        GPIOA                       /* GPIOA */
+#define SPI_MISO_GPIO_CLK         RCC_AHB1Periph_GPIOA
+#define SPI_MISO_SOURCE           GPIO_PinSource6
+#define SPI_MISO_AF               GPIO_AF5_SPI1
+
+#define SPI_MOSI_PIN              GPIO_PIN_7                  /* PA.7 */
+#define SPI_MOSI_GPIO_PORT        GPIOA                       /* GPIOA */
+#define SPI_MOSI_GPIO_CLK         RCC_AHB1Periph_GPIOA
+#define SPI_MOSI_SOURCE           GPIO_PinSource7
+#define SPI_MOSI_AF               GPIO_AF5_SPI1
+
+#define SPI_CS_PIN                GPIO_PIN_3                  /* PE.03 */
+#define SPI_CS_GPIO_PORT          GPIOE                       /* GPIOE */
+#define SPI_CS_GPIO_CLK           RCC_AHB1Periph_GPIOE
+
+#define SPI_INT1_PIN              GPIO_PIN_0                  /* PE.00 */
+#define SPI_INT1_GPIO_PORT        GPIOE                       /* GPIOE */
+#define SPI_INT1_GPIO_CLK         RCC_AHB1Periph_GPIOE
+#define SPI_INT1_EXTI_LINE        EXTI_Line0
+#define SPI_INT1_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
+#define SPI_INT1_EXTI_PIN_SOURCE  EXTI_PinSource0
+#define SPI_INT1_EXTI_IRQn        EXTI0_IRQn
+
+#define SPI_INT2_PIN              GPIO_PIN_1                  /* PE.01 */
+#define SPI_INT2_GPIO_PORT        GPIOE                       /* GPIOE */
+#define SPI_INT2_GPIO_CLK         RCC_AHB1Periph_GPIOE
+#define SPI_INT2_EXTI_LINE        EXTI_Line1
+#define SPI_INT2_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
+#define SPI_INT2_EXTI_PIN_SOURCE  EXTI_PinSource1
+#define SPI_INT2_EXTI_IRQn        EXTI1_IRQn
+
+#define CS_LOW()       HAL_GPIO_WritePin(SPI_CS_GPIO_PORT, SPI_CS_PIN, GPIO_PIN_RESET)
+#define CS_HIGH()      HAL_GPIO_WritePin(SPI_CS_GPIO_PORT, SPI_CS_PIN, GPIO_PIN_SET)
 
 // Function def
 uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi);
@@ -97,21 +145,48 @@ void SPI_Init(void)
 	__HAL_SPI_ENABLE(&SpiHandle);
   
 //	/* Configure MEMS: data rate, update mode and axes */
-//  ctrl = (uint8_t) (LIS3DSH_InitStruct->Power_Mode_Output_DataRate | \
-//										LIS3DSH_InitStruct->Continous_Update           | \
-//										LIS3DSH_InitStruct->Axes_Enable);
+//  ctrl = (uint8_t) (InitStruct->Power_Mode_Output_DataRate | \
+//										InitStruct->Continous_Update           | \
+//										InitStruct->Axes_Enable);
 
 
 //  /* Write value to MEMS CTRL_REG4 regsister */
-//  LIS3DSH_Write(&ctrl, LIS3DSH_CTRL_REG4, 1);
+//  Write(&ctrl, CTRL_REG4, 1);
 
 //	/* Configure MEMS: Anti-aliasing filter, full scale, self test  */
-//	ctrl = (uint8_t) (LIS3DSH_InitStruct->AA_Filter_BW | \
-//										LIS3DSH_InitStruct->Full_Scale   | \
-//										LIS3DSH_InitStruct->Self_Test);
+//	ctrl = (uint8_t) (InitStruct->AA_Filter_BW | \
+//										InitStruct->Full_Scale   | \
+//										InitStruct->Self_Test);
 
 //	/* Write value to MEMS CTRL_REG5 regsister */
-//	LIS3DSH_Write(&ctrl, LIS3DSH_CTRL_REG5, 1);
+//	Write(&ctrl, CTRL_REG5, 1);
+}
+
+void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
+{
+  /* Configure the MS bit:
+       - When 0, the address will remain unchanged in multiple read/write commands.
+       - When 1, the address will be auto incremented in multiple read/write commands.
+  */
+  if(NumByteToWrite > 0x01)
+  {
+    WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
+  }
+  /* Set chip select Low at the start of the transmission */
+  CS_LOW();
+
+  /* Send the Address of the indexed register */
+  SPI_SendByte(WriteAddr);
+  /* Send the data that will be written into the device (MSB First) */
+  while(NumByteToWrite >= 0x01)
+  {
+    SPI_SendByte(*pBuffer);
+    NumByteToWrite--;
+    pBuffer++;
+  }
+
+  /* Set chip select High at the end of the transmission */
+  CS_HIGH();
 }
 
 void sendFloatValue(SPI_HandleTypeDef *spi, float value) {
