@@ -457,6 +457,11 @@
               <FileType>1</FileType>
               <FilePath>.\Sources\keypad.c</FilePath>
             </File>
+            <File>
+              <FileName>bluetooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\bluetooth.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -928,6 +933,11 @@
               <FileType>1</FileType>
               <FilePath>.\Sources\keypad.c</FilePath>
             </File>
+            <File>
+              <FileName>bluetooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\bluetooth.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1398,6 +1408,11 @@
               <FileName>keypad.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Sources\keypad.c</FilePath>
+            </File>
+            <File>
+              <FileName>bluetooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\bluetooth.c</FilePath>
             </File>
           </Files>
         </Group>
