@@ -99,9 +99,12 @@ void Thread_Bluetooth(void const *argument){
 		// Talk to SPI
 		// Send accelerometer, temperature
 		// Get angles
+		uint8_t * rollArr;
+		uint8_t * pitchArr;
+		uint8_t * tempArr;
+		
 		float roll = getSetValue(1,0,0);
 		float pitch = getSetValue(1,0,1);
-		// Temperature
 		float temp = getSetValue(1,0,2);
 		
 		// Now how do I transmit these values via SPI?
@@ -109,20 +112,27 @@ void Thread_Bluetooth(void const *argument){
 		// 0 -> roll
 		// 1 -> pitch
 		// 2 -> temp
-		SPI_SendByte(0);
-		SPI_SendByte((int)(roll * 100));
-		SPI_SendByte(1);
-		SPI_SendByte((int)(pitch * 100));
-		SPI_SendByte(2);
-		SPI_SendByte((int)(temp * 100));
+		rollArr = (uint8_t *) &roll;
+		pitchArr = (uint8_t *) &pitch;
+		tempArr = (uint8_t *) &temp;
+		
+		HAL_SPI_TransmitReceive(&SpiHandle, rollArr, 0, 4, SPI_FLAG_TIMEOUT);
+		HAL_SPI_TransmitReceive(&SpiHandle, pitchArr, 0, 4, SPI_FLAG_TIMEOUT);
+		HAL_SPI_TransmitReceive(&SpiHandle, tempArr, 0, 4, SPI_FLAG_TIMEOUT);
+		//while (roll) {
+			//roll *= 100;
+			//i = (int *)&roll;
+			
+			//uint8_t byteToSend = (int)(roll) & 0xff;
+			//roll = roll > 8;
+			//HAL_SPI_TransmitReceive(&SpiHandle, iarr, 0, 4, SPI_FLAG_TIMEOUT);
+		//}
 		
 	}
 }
 
 void SPI_Init(void)
 {
-  uint8_t ctrl = 0x00;
-
   /* Configure the low level interface ---------------------------------------*/
 	  /* SPI configuration -------------------------------------------------------*/
 	__HAL_RCC_SPI1_CLK_ENABLE();
@@ -172,7 +182,7 @@ void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
   {
     WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
   }
-  /* Set chip select Low at the start of the transmission */
+  /* Set chip select Low at the start of the transmission */ 
   CS_LOW();
 
   /* Send the Address of the indexed register */
@@ -189,9 +199,6 @@ void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
   CS_HIGH();
 }
 
-void sendFloatValue(SPI_HandleTypeDef *spi, float value) {
-	SPI_SendData(spi, value);
-}
 
 
 /**
