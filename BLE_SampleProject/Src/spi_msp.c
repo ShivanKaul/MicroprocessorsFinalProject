@@ -36,7 +36,7 @@ void Disc_SPI_Init(void)
   DiscoverySpiHandle.Init.TIMode 						= SPI_TIMODE_DISABLED;
   DiscoverySpiHandle.Init.Mode 							= SPI_MODE_SLAVE;
 
-	if (HAL_SPI_Init(&DiscoverySpiHandle) != HAL_OK) {printf ("ERROR: Error in initialising SPI1 \n");};
+	if (HAL_SPI_Init(&DiscoverySpiHandle) != HAL_OK) {printf ("ERROR: Error in initialising SPI2 \n");};
   
 	__HAL_SPI_ENABLE(&DiscoverySpiHandle);
 }
@@ -86,10 +86,13 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
 }
 
+void spiReadFromDiscovery(void){
+	uint8_t a[12];
+		HAL_SPI_Receive(&DiscoverySpiHandle, a, 12, 1000000);
+	printf("%d, %d, %d, %d",a[0],a[1],a[2],a[3]);
+}
 
-
-void Disc_SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
-{
+void spiWriteToDiscovery(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite){
   /* Configure the MS bit:
        - When 0, the address will remain unchanged in multiple read/write commands.
        - When 1, the address will be auto incremented in multiple read/write commands.
@@ -100,6 +103,9 @@ void Disc_SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite
   }*/
   /* Set chip select Low at the start of the transmission */ 
   CS_LOW();
+	
+	
+	
 
   /* Send the Address of the indexed register */
   //Disc_SPI_SendByte(WriteAddr);

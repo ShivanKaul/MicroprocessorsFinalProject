@@ -116,9 +116,15 @@ void Thread_Bluetooth(void const *argument){
 		pitchArr = (uint8_t *) &pitch;
 		tempArr = (uint8_t *) &temp;
 		
+		HAL_SPI_Transmit(&SpiHandle, rollArr, 4, SPI_FLAG_TIMEOUT);
+		HAL_SPI_Transmit(&SpiHandle, pitchArr, 4, SPI_FLAG_TIMEOUT);
+		HAL_SPI_Transmit(&SpiHandle, tempArr, 4, SPI_FLAG_TIMEOUT);
+		
+		/*
 		HAL_SPI_TransmitReceive(&SpiHandle, rollArr, 0, 4, SPI_FLAG_TIMEOUT);
 		HAL_SPI_TransmitReceive(&SpiHandle, pitchArr, 0, 4, SPI_FLAG_TIMEOUT);
 		HAL_SPI_TransmitReceive(&SpiHandle, tempArr, 0, 4, SPI_FLAG_TIMEOUT);
+		*/
 		//while (roll) {
 			//roll *= 100;
 			//i = (int *)&roll;

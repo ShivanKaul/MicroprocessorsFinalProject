@@ -49,6 +49,8 @@
 
 #include <string.h>
 #include <stdio.h>
+#include "spi_msp.h"
+
 
 /** @addtogroup X-CUBE-BLE1_Applications
  *  @{
@@ -155,6 +157,7 @@ int main(void)
 
   /* Initialize the BlueNRG SPI driver */
   BNRG_SPI_Init();
+	Disc_SPI_Init();
   
   /* Initialize the BlueNRG HCI */
   HCI_Init();

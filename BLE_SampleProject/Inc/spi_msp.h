@@ -100,10 +100,10 @@
   * @{
   */
   
-void Enable_SPI_IRQ(void);
-void Disable_SPI_IRQ(void);
-void Clear_SPI_IRQ(void);
-void Clear_SPI_EXTI_Flag(void);
+void Disc_SPI_Init(void);
+void spiReadFromDiscovery(void);
+//void Clear_SPI_IRQ(void);
+//void Clear_SPI_EXTI_Flag(void);
 
 /**
   * @}
