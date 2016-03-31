@@ -83,15 +83,15 @@ void SPI_Init(void)
   DiscoverySpiHandle.Instance 							  = SPI2;
   DiscoverySpiHandle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_4;
   DiscoverySpiHandle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  DiscoverySpiHandle.Init.CLKPhase 					= SPI_PHASE_1EDGE;
+  DiscoverySpiHandle.Init.CLKPhase 						= SPI_PHASE_1EDGE;
   DiscoverySpiHandle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
   DiscoverySpiHandle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
   DiscoverySpiHandle.Init.CRCPolynomial 			= 7;
-  DiscoverySpiHandle.Init.DataSize 					= SPI_DATASIZE_8BIT;
-  DiscoverySpiHandle.Init.FirstBit 					= SPI_FIRSTBIT_MSB;
+  DiscoverySpiHandle.Init.DataSize 						= SPI_DATASIZE_8BIT;
+  DiscoverySpiHandle.Init.FirstBit 						= SPI_FIRSTBIT_MSB;
   DiscoverySpiHandle.Init.NSS 								= SPI_NSS_SOFT;
-  DiscoverySpiHandle.Init.TIMode 						= SPI_TIMODE_DISABLED;
-  DiscoverySpiHandle.Init.Mode 							= SPI_MODE_MASTER;
+  DiscoverySpiHandle.Init.TIMode 							= SPI_TIMODE_DISABLED;
+  DiscoverySpiHandle.Init.Mode 								= SPI_MODE_MASTER;
 	if (HAL_SPI_Init(&DiscoverySpiHandle) != HAL_OK) {printf ("ERROR: Error in initialising SPI1 \n");};
   
 	__HAL_SPI_ENABLE(&DiscoverySpiHandle);
@@ -147,29 +147,30 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 
 }
 
-void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
-{
+
+//void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
+//{
   /* Configure the MS bit:
        - When 0, the address will remain unchanged in multiple read/write commands.
        - When 1, the address will be auto incremented in multiple read/write commands.
   */
-  if(NumByteToWrite > 0x01)
+  /*if(NumByteToWrite > 0x01)
   {
     WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
-  }
+  }*/
   /* Set chip select Low at the start of the transmission */ 
   CS_LOW();
 
   /* Send the Address of the indexed register */
   //SPI_SendByte(WriteAddr);
   /* Send the data that will be written into the device (MSB First) */
-  while(NumByteToWrite >= 0x01)
+  /*while(NumByteToWrite >= 0x01)
   {
     //SPI_SendByte(*pBuffer);
     NumByteToWrite--;
     pBuffer++;
-  }
+  }*/
 
   /* Set chip select High at the end of the transmission */
-  CS_HIGH();
-}
+  //CS_HIGH();
+}//
