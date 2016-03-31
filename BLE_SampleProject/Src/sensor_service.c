@@ -56,7 +56,7 @@ volatile int connected = FALSE;
 volatile uint8_t set_connectable = 1;
 volatile uint16_t connection_handle = 0;
 volatile uint8_t notification_enabled = FALSE;
-volatile AxesRaw_t axes_data = {0, 0, 0};
+volatile Acc_t acc_data = {18000, 18000};
 uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
 uint16_t accServHandle, freeFallCharHandle, accCharHandle;
 uint16_t envSensServHandle, tempCharHandle, pressCharHandle, humidityCharHandle;
@@ -192,16 +192,15 @@ tBleStatus Free_Fall_Notify(void)
  * @param  Structure containing acceleration value in mg
  * @retval Status
  */
-tBleStatus Acc_Update(AxesRaw_t *data)
+tBleStatus Acc_Update(Acc_t *data)
 {  
   tBleStatus ret;    
   uint8_t buff[6];
     
-  STORE_LE_16(buff,data->AXIS_X);
-  STORE_LE_16(buff+2,data->AXIS_Y);
-  STORE_LE_16(buff+4,data->AXIS_Z);
+  STORE_LE_16(buff,data->ROLL);
+  STORE_LE_16(buff+2,data->PITCH);
 	
-  ret = aci_gatt_update_char_value(accServHandle, accCharHandle, 0, 6, buff);
+  ret = aci_gatt_update_char_value(accServHandle, accCharHandle, 0, 4, buff);
 	
   if (ret != BLE_STATUS_SUCCESS){
     PRINTF("Error while updating ACC characteristic.\n") ;
@@ -470,12 +469,12 @@ void GAP_DisconnectionComplete_CB(void)
 void Read_Request_CB(uint16_t handle)
 {  
   if(handle == accCharHandle + 1){
-    Acc_Update((AxesRaw_t*)&axes_data);
+    Acc_Update((Acc_t*)&acc_data);
   }  
   else if(handle == tempCharHandle + 1){
     int16_t data;
     data = 210 + ((uint64_t)rand()*15)/RAND_MAX; //sensor emulation        
-    Acc_Update((AxesRaw_t*)&axes_data); //FIXME: to overcome issue on Android App
+    Acc_Update((Acc_t*)&acc_data); //FIXME: to overcome issue on Android App
                                         // If the user button is not pressed within
                                         // a short time after the connection,
                                         // a pop-up reports a "No valid characteristics found" error.

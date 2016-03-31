@@ -80,7 +80,7 @@
 /* Private variables ---------------------------------------------------------*/
 extern volatile uint8_t set_connectable;
 extern volatile int connected;
-extern AxesRaw_t axes_data;
+extern Acc_t acc_data;
 uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB04A1 is used */
 /**
  * @}
@@ -90,7 +90,7 @@ uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB0
  * @{
  */
 /* Private function prototypes -----------------------------------------------*/
-void User_Process(AxesRaw_t* p_axes);
+void User_Process(Acc_t* p_axes);
 /**
  * @}
  */
@@ -277,7 +277,7 @@ int main(void)
   while(1)
   {
     HCI_Process();
-    User_Process(&axes_data);
+    User_Process(&acc_data);
 #if NEW_SERVICES
     Update_Time_Characteristics();
 #endif
@@ -288,10 +288,10 @@ int main(void)
  * @brief  Process user input (i.e. pressing the USER button on Nucleo board)
  *         and send the updated acceleration data to the remote client.
  *
- * @param  AxesRaw_t* p_axes
+ * @param  Acc_t* p_axes
  * @retval None
  */
-void User_Process(AxesRaw_t* p_axes)
+void User_Process(Acc_t* p_axes)
 {
   if(set_connectable){
     setConnectable();
@@ -307,11 +307,7 @@ void User_Process(AxesRaw_t* p_axes)
     
     if(connected)
     {
-      /* Update acceleration data */
-      p_axes->AXIS_X += 1;
-      p_axes->AXIS_Y -= 1;
-      p_axes->AXIS_Z += 2;
-      //PRINTF("ACC: X=%6d Y=%6d Z=%6d\r\n", p_axes->AXIS_X, p_axes->AXIS_Y, p_axes->AXIS_Z);
+      PRINTF("User pressed button! ACC: X=%6d Y=%6d\n", p_axes->ROLL, p_axes->PITCH);
       Acc_Update(p_axes);
     }
   }
