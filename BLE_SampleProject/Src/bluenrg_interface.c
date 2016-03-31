@@ -52,7 +52,12 @@ extern SPI_HandleTypeDef SpiHandle;
  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  HCI_Isr();
+	if (GPIO_Pin==GPIO_PIN_0){
+		HCI_Isr();
+	}
+	if (GPIO_Pin==GPIO_PIN_1){
+		//HCI_Isr();
+	}
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

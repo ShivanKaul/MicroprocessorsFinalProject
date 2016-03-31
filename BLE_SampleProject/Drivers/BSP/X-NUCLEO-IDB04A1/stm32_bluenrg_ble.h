@@ -86,6 +86,7 @@ void BNRG_SPI_Init(void);
 void BlueNRG_RST(void);
 uint8_t BlueNRG_DataPresent(void);
 void    BlueNRG_HW_Bootloader(void);
+void Bluetooth_MSP_init(SPI_HandleTypeDef* hspi);
 int32_t BlueNRG_SPI_Read_All(SPI_HandleTypeDef *hspi,
                              uint8_t *buffer,
                              uint8_t buff_size);

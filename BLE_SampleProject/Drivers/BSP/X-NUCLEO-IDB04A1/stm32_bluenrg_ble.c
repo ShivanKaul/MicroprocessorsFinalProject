@@ -103,7 +103,7 @@ void print_csv_time(void){
   uint32_t ms = ms_counter;
   PRINT_CSV("%02d:%02d:%02d.%03d", ms/(60*60*1000)%24, ms/(60*1000)%60, (ms/1000)%60, ms%1000);
 }
-
+extern  void Discovery_MSP_init(SPI_HandleTypeDef*);
 /**
  * @brief  This function is used for low level initialization of the SPI 
  *         communication with the BlueNRG Expansion Board.
@@ -112,7 +112,14 @@ void print_csv_time(void){
  */
 void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 {
-  GPIO_InitTypeDef GPIO_InitStruct;
+  if (hspi->Instance==SPI1){
+		Bluetooth_MSP_init(hspi);
+	}else if (hspi->Instance==SPI2){
+		Discovery_MSP_init(hspi);
+	}
+}
+void Bluetooth_MSP_init(SPI_HandleTypeDef* hspi){
+GPIO_InitTypeDef GPIO_InitStruct;
   if(hspi->Instance==BNRG_SPI_INSTANCE)
 {
     /* Enable peripherals clock */
@@ -183,7 +190,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     HAL_NVIC_EnableIRQ(BNRG_SPI_EXTI_IRQn);
   }
 }
-
 /**
  * @brief  Writes data to a serial interface.
  * @param  data1   :  1st buffer

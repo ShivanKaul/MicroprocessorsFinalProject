@@ -147,6 +147,10 @@ void BNRG_SPI_EXTI_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(BNRG_SPI_EXTI_PIN);
 }
 
+void SPI_EXTI_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
+}
 
 /**
   * @brief  This function handles the Push Button interrupt request.
