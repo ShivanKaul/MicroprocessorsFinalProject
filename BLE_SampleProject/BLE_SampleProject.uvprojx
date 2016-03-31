@@ -442,6 +442,11 @@
               <FileType>1</FileType>
               <FilePath>.\Src\sensor_service.c</FilePath>
             </File>
+            <File>
+              <FileName>spi_msp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\spi_msp.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
