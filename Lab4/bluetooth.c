@@ -83,6 +83,7 @@ osThreadDef(Thread_Bluetooth, osPriorityNormal, 1, 0);
   * @retval int
   */
 int start_Thread_Bluetooth	(void){
+	SPI_Init();
 	tid_Thread_Bluetooth = osThreadCreate(osThread(Thread_Bluetooth), NULL); // Start Bluetooth
   if (!tid_Thread_Bluetooth) return(-1); 
   return(0);
@@ -108,8 +109,8 @@ void Thread_Bluetooth(void const *argument){
 		float temp = getSetValue(1,0,2);
 		
 		uint8_t testBytesArray[12] = {1,1,1,1,2,1,1,1,3,1,1,1};
-		
-		osDelay(1);
+		//DELAY
+		osDelay(1000);
 		// Now how do I transmit these values via SPI?
 		// We will need some sort of data encoding on this end:
 		// 0 -> roll
@@ -120,8 +121,8 @@ void Thread_Bluetooth(void const *argument){
 		pitchArr = (uint8_t *) &pitch;
 		tempArr = (uint8_t *) &temp;
 		
-		HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, SPI_FLAG_TIMEOUT);
-		
+		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
+		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
 		/**
 		
 		testBytesArray[0] = 2;
@@ -157,7 +158,7 @@ void SPI_Init(void)
 {
   /* Configure the low level interface ---------------------------------------*/
 	  /* SPI configuration -------------------------------------------------------*/
-	__HAL_RCC_SPI1_CLK_ENABLE();
+	__HAL_RCC_SPI2_CLK_ENABLE();
 	
   HAL_SPI_DeInit(&Spi2Handle);
   Spi2Handle.Instance 							  = SPI2;
