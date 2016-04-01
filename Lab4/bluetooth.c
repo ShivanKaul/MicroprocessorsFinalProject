@@ -14,7 +14,7 @@
 #define SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 __IO uint32_t  SPITimeout = SPI_FLAG_TIMEOUT;
 #define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
-SPI_HandleTypeDef    SpiHandle;
+SPI_HandleTypeDef    Spi2Handle;
 
 /**
   * @brief  SPI Interface pins
@@ -82,7 +82,7 @@ osThreadDef(Thread_Bluetooth, osPriorityNormal, 1, 0);
   * @param  None
   * @retval int
   */
-int start_Thread_Accelerometer	(void){
+int start_Thread_Bluetooth	(void){
 	tid_Thread_Bluetooth = osThreadCreate(osThread(Thread_Bluetooth), NULL); // Start Bluetooth
   if (!tid_Thread_Bluetooth) return(-1); 
   return(0);
@@ -95,7 +95,7 @@ int start_Thread_Accelerometer	(void){
   */
 void Thread_Bluetooth(void const *argument){
 	while(1){
-		osDelay(1); // 1 ms 
+		 // 1 ms 
 		// Talk to SPI
 		// Send accelerometer, temperature
 		// Get angles
@@ -107,19 +107,35 @@ void Thread_Bluetooth(void const *argument){
 		float pitch = getSetValue(1,0,1);
 		float temp = getSetValue(1,0,2);
 		
+		uint8_t testBytesArray[12] = {1,1,1,1,2,1,1,1,3,1,1,1};
+		
+		osDelay(1);
 		// Now how do I transmit these values via SPI?
 		// We will need some sort of data encoding on this end:
 		// 0 -> roll
 		// 1 -> pitch
 		// 2 -> temp
+		
 		rollArr = (uint8_t *) &roll;
 		pitchArr = (uint8_t *) &pitch;
 		tempArr = (uint8_t *) &temp;
 		
-		HAL_SPI_Transmit(&SpiHandle, rollArr, 4, SPI_FLAG_TIMEOUT);
-		HAL_SPI_Transmit(&SpiHandle, pitchArr, 4, SPI_FLAG_TIMEOUT);
-		HAL_SPI_Transmit(&SpiHandle, tempArr, 4, SPI_FLAG_TIMEOUT);
+		HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, SPI_FLAG_TIMEOUT);
 		
+		/**
+		
+		testBytesArray[0] = 2;
+		
+		HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 4, SPI_FLAG_TIMEOUT);
+		
+		testBytesArray[0] = 3;
+		
+		HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 4, SPI_FLAG_TIMEOUT);
+		
+		
+		**/
+		
+		//printf("%f", roll);
 		/*
 		HAL_SPI_TransmitReceive(&SpiHandle, rollArr, 0, 4, SPI_FLAG_TIMEOUT);
 		HAL_SPI_TransmitReceive(&SpiHandle, pitchArr, 0, 4, SPI_FLAG_TIMEOUT);
@@ -143,39 +159,23 @@ void SPI_Init(void)
 	  /* SPI configuration -------------------------------------------------------*/
 	__HAL_RCC_SPI1_CLK_ENABLE();
 	
-  HAL_SPI_DeInit(&SpiHandle);
-  SpiHandle.Instance 							  = SPI1;
-  SpiHandle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_4;
-  SpiHandle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  SpiHandle.Init.CLKPhase 					= SPI_PHASE_1EDGE;
-  SpiHandle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
-  SpiHandle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
-  SpiHandle.Init.CRCPolynomial 			= 7;
-  SpiHandle.Init.DataSize 					= SPI_DATASIZE_8BIT;
-  SpiHandle.Init.FirstBit 					= SPI_FIRSTBIT_MSB;
-  SpiHandle.Init.NSS 								= SPI_NSS_SOFT;
-  SpiHandle.Init.TIMode 						= SPI_TIMODE_DISABLED;
-  SpiHandle.Init.Mode 							= SPI_MODE_MASTER;
-	if (HAL_SPI_Init(&SpiHandle) != HAL_OK) {printf ("ERROR: Error in initialising SPI1 \n");};
+  HAL_SPI_DeInit(&Spi2Handle);
+  Spi2Handle.Instance 							  = SPI2;
+  Spi2Handle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_4; 
+  Spi2Handle.Init.Direction 					= SPI_DIRECTION_2LINES;
+  Spi2Handle.Init.CLKPhase 					= SPI_PHASE_1EDGE;
+  Spi2Handle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
+  Spi2Handle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
+  Spi2Handle.Init.CRCPolynomial 			= 7;
+  Spi2Handle.Init.DataSize 					= SPI_DATASIZE_8BIT;
+  Spi2Handle.Init.FirstBit 					= SPI_FIRSTBIT_MSB;
+  Spi2Handle.Init.NSS 								= SPI_NSS_SOFT;
+  Spi2Handle.Init.TIMode 						= SPI_TIMODE_DISABLED;
+  Spi2Handle.Init.Mode 							= SPI_MODE_MASTER;
+	
+	if (HAL_SPI_Init(&Spi2Handle) != HAL_OK) {printf ("ERROR: Error in initialising SPI1 \n");};
   
-	__HAL_SPI_ENABLE(&SpiHandle);
-  
-//	/* Configure MEMS: data rate, update mode and axes */
-//  ctrl = (uint8_t) (InitStruct->Power_Mode_Output_DataRate | \
-//										InitStruct->Continous_Update           | \
-//										InitStruct->Axes_Enable);
-
-
-//  /* Write value to MEMS CTRL_REG4 regsister */
-//  Write(&ctrl, CTRL_REG4, 1);
-
-//	/* Configure MEMS: Anti-aliasing filter, full scale, self test  */
-//	ctrl = (uint8_t) (InitStruct->AA_Filter_BW | \
-//										InitStruct->Full_Scale   | \
-//										InitStruct->Self_Test);
-
-//	/* Write value to MEMS CTRL_REG5 regsister */
-//	Write(&ctrl, CTRL_REG5, 1);
+	__HAL_SPI_ENABLE(&Spi2Handle);
 }
 
 void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
@@ -217,17 +217,17 @@ static uint8_t SPI_SendByte(uint8_t byte)
 {
   /* Loop while DR register in not empty */
   SPITimeout = SPI_FLAG_TIMEOUT;
-  while (__HAL_SPI_GET_FLAG(&SpiHandle, SPI_FLAG_TXE) == RESET)
+  while (__HAL_SPI_GET_FLAG(&Spi2Handle, SPI_FLAG_TXE) == RESET)
   {
     if((SPITimeout--) == 0) return 0; // Timeout
   }
 
   /* Send a Byte through the SPI peripheral */
-  SPI_SendData(&SpiHandle,  byte);
+  SPI_SendData(&Spi2Handle,  byte);
 
   /* Wait to receive a Byte */
   SPITimeout = SPI_FLAG_TIMEOUT;
-  while (__HAL_SPI_GET_FLAG(&SpiHandle, SPI_FLAG_RXNE) == RESET)
+  while (__HAL_SPI_GET_FLAG(&Spi2Handle, SPI_FLAG_RXNE) == RESET)
   {
     if((SPITimeout--) == 0) {
 			return 0; // Timeout
@@ -235,7 +235,7 @@ static uint8_t SPI_SendByte(uint8_t byte)
   }
 
   /* Return the Byte read from the SPI bus */ 
-  return SPI_ReceiveData(&SpiHandle);
+  return SPI_ReceiveData(&Spi2Handle);
 }
 
 /**
@@ -243,11 +243,11 @@ static uint8_t SPI_SendByte(uint8_t byte)
   * @param  *hspi: Pointer to the SPI handle. Its member Instance can point to either SPI1, SPI2 or SPI3 
   * @retval The value of the received data.
   */
-uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi)
-{
+//uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi)
+//{
   /* Return the data in the DR register */
-  return hspi->Instance->DR;
-}
+  //return hspi->Instance->DR;
+//}
 
 /**
   * @brief  Transmits a Data through the SPIx/I2Sx peripheral.
@@ -255,10 +255,10 @@ uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi)
   * @param  Data: Data to be transmitted.
   * @retval None
   */
-void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data)
-{ 
+//void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data)
+//{ 
   /* Write in the DR register the data to be sent */
-  hspi->Instance->DR = Data;
-}
+  //hspi->Instance->DR = Data;
+//}
 
 

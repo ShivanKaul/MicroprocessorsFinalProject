@@ -279,6 +279,7 @@ int main(void)
 
   while(1)
   {
+		spiReadFromDiscovery();
     HCI_Process();
     User_Process(&acc_data);
 #if NEW_SERVICES

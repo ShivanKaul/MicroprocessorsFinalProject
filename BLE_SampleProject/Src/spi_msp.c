@@ -50,8 +50,6 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
   /* Enable SCK, MOSI and MISO GPIO clocks */
   __GPIOB_CLK_ENABLE();
 
-
-
   GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
   GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
   GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
@@ -82,14 +80,25 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 //  GPIO_InitStructure.Mode  = GPIO_MODE_IT_FALLING;
 //  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
 //  HAL_GPIO_Init(Disc_SPI_INT1_GPIO_PORT, &GPIO_InitStructure);
-
-
 }
 
 void spiReadFromDiscovery(void){
 	uint8_t a[12];
-		HAL_SPI_Receive(&DiscoverySpiHandle, a, 12, 1000000);
-	printf("%d, %d, %d, %d",a[0],a[1],a[2],a[3]);
+	HAL_StatusTypeDef readStatus;
+	
+	printf("BEFORE READING:");
+	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
+	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
+	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
+	
+	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
+	
+	readStatus = HAL_SPI_Receive(&DiscoverySpiHandle, a, 12, 1000000);
+	
+	printf("AFTER READING: STATUS = %d", readStatus);
+	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
+	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
+	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
 }
 
 void spiWriteToDiscovery(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite){
