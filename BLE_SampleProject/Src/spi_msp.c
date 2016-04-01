@@ -52,23 +52,27 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
   GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
   GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-  GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
+  GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
   GPIO_InitStructure.Alternate = GPIO_AF5_SPI2;
 
   /* SPI SCK pin configuration */
   GPIO_InitStructure.Pin = Disc_SPI_SCLK_PIN;
-  HAL_GPIO_Init(Disc_SPI_SCLK_PORT, &GPIO_InitStructure);
+  GPIO_InitStructure.Pull  = GPIO_NOPULL;
+	HAL_GPIO_Init(Disc_SPI_SCLK_PORT, &GPIO_InitStructure);
 
   /* SPI  MOSI pin configuration */
   GPIO_InitStructure.Pin =  Disc_SPI_MOSI_PIN;
+	GPIO_InitStructure.Pull  = GPIO_NOPULL;
   HAL_GPIO_Init(Disc_SPI_MOSI_PORT, &GPIO_InitStructure);
 
   /* SPI MISO pin configuration */
   GPIO_InitStructure.Pin = Disc_SPI_MISO_PIN;
+	GPIO_InitStructure.Pull  = GPIO_NOPULL;
   HAL_GPIO_Init(Disc_SPI_MISO_PORT, &GPIO_InitStructure);
 	
 	GPIO_InitStructure.Pin   = Disc_SPI_CS_PIN;
   GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStructure.Pull  = GPIO_NOPULL;
   GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(Disc_SPI_CS_PORT, &GPIO_InitStructure);
 
@@ -86,16 +90,16 @@ void spiReadFromDiscovery(void){
 	uint8_t a[12];
 	HAL_StatusTypeDef readStatus;
 	
-	printf("BEFORE READING:");
+	printf("BEFORE READING: \n");
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
 	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
 	
 	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
 	
-	readStatus = HAL_SPI_Receive(&DiscoverySpiHandle, a, 12, 1000000);
+	readStatus = HAL_SPI_Receive(&DiscoverySpiHandle, a, 12, 1000);
 	
-	printf("AFTER READING: STATUS = %d", readStatus);
+	printf("AFTER READING: STATUS = %d \n", readStatus);
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
 	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
