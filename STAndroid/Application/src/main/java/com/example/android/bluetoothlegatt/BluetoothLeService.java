@@ -32,6 +32,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,8 +67,10 @@ public class BluetoothLeService extends Service {
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
-    public final static UUID UUID_HEART_RATE_MEASUREMENT =
-            UUID.fromString(GattAttributes.HEART_RATE_MEASUREMENT);
+//    public final static UUID UUID_HEART_RATE_MEASUREMENT =
+//            UUID.fromString(GattAttributes.HEART_RATE_MEASUREMENT);
+    public final static UUID UUID_ACC_MEASUREMENT =
+            UUID.fromString(GattAttributes.ACC_UUID_STRING);
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -126,27 +132,36 @@ public class BluetoothLeService extends Service {
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+
+         if (UUID_ACC_MEASUREMENT.equals(characteristic.getUuid())) {
+            // If acceleration
+            final byte[] data = characteristic.getValue();
             int flag = characteristic.getProperties();
             int format = -1;
             if ((flag & 0x01) != 0) {
                 format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.d(TAG, "Heart rate format UINT16.");
+                Log.d(TAG, "Format UINT16.");
             } else {
                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d(TAG, "Heart rate format UINT8.");
+                Log.d(TAG, "Format UINT8.");
             }
-            final int heartRate = characteristic.getIntValue(format, 1);
-            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
+
             if (data != null && data.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
+                // actual numbers coming over wire
+                byte[] firstRawNumber = Arrays.copyOfRange(data, 0, 2);
+                byte[] secondRawNumber = Arrays.copyOfRange(data, 2, 4);
+
+                ByteBuffer bb1 = ByteBuffer.wrap(firstRawNumber);
+                ByteBuffer bb2 = ByteBuffer.wrap(secondRawNumber);
+                bb1.order(ByteOrder.LITTLE_ENDIAN);
+                bb2.order(ByteOrder.LITTLE_ENDIAN);
+
+                float roll = bb1.getShort() / 100.0f;
+                float pitch = bb2.getShort() / 100.0f;
+                String movData = "Roll: " + String.valueOf(roll) +
+                        " Pitch: " + String.valueOf(pitch);
+                System.out.println("Mov data is " + movData);
+                intent.putExtra(EXTRA_DATA, movData);
             }
         }
         sendBroadcast(intent);
@@ -297,12 +312,12 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         // This is specific to Heart Rate Measurement.
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGatt.writeDescriptor(descriptor);
-        }
+//        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+//                    UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//            mBluetoothGatt.writeDescriptor(descriptor);
+//        }
     }
 
     /**

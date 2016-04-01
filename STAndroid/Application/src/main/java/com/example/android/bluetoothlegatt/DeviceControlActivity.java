@@ -261,8 +261,13 @@ public class DeviceControlActivity extends Activity {
         for (BluetoothGattService gattService : gattServices) {
             HashMap<String, String> currentServiceData = new HashMap<String, String>();
             uuid = gattService.getUuid().toString();
+            String serviceString = GattAttributes.lookup(uuid, unknownServiceString);
+            // If unknown then don't store
+            if (serviceString.contains(unknownServiceString)) {
+                continue;
+            }
             currentServiceData.put(
-                    LIST_NAME, GattAttributes.lookup(uuid, unknownServiceString));
+                    LIST_NAME, serviceString);
             currentServiceData.put(LIST_UUID, uuid);
             gattServiceData.add(currentServiceData);
 
@@ -278,8 +283,13 @@ public class DeviceControlActivity extends Activity {
                 charas.add(gattCharacteristic);
                 HashMap<String, String> currentCharaData = new HashMap<String, String>();
                 uuid = gattCharacteristic.getUuid().toString();
+                String charString = GattAttributes.lookup(uuid, unknownCharaString);
+                // If unknown then don't store
+                if (charString.contains(unknownCharaString)) {
+                    continue;
+                }
                 currentCharaData.put(
-                        LIST_NAME, GattAttributes.lookup(uuid, unknownCharaString));
+                        LIST_NAME, charString);
                 currentCharaData.put(LIST_UUID, uuid);
                 gattCharacteristicGroupData.add(currentCharaData);
             }

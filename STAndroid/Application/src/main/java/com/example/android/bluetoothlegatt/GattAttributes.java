@@ -32,13 +32,15 @@ public class GattAttributes {
     private static int[] ACC_TEMP_UUID = { 0xa3,0x2e,0x55,0x20, 0xe4,0x77, 0x11,0xe2, 0xa9,0xe3, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
 
     /************************** RELICS OF A BYGONE ERA ***************************************/
-    public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
-    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+//    public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
+//    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+
+    final static String ACC_SERVICE_UUID_STRING = convertUUIDToString(ACC_SERVICE_UUID);
+    final static String ACC_UUID_STRING = convertUUIDToString(ACC_UUID);
+    final static String ACC_TEMP_UUID_STRING = convertUUIDToString(ACC_TEMP_UUID);
 
     static {
-        final String ACC_SERVICE_UUID_STRING = convertUUIDToString(ACC_SERVICE_UUID);
-        final String ACC_UUID_STRING = convertUUIDToString(ACC_UUID);
-        final String ACC_TEMP_UUID_STRING = convertUUIDToString(ACC_TEMP_UUID);
+
 
         attributes.put(ACC_SERVICE_UUID_STRING, "Acceleration Service");
         attributes.put(ACC_UUID_STRING, "Acceleration Characteristic");
@@ -46,11 +48,11 @@ public class GattAttributes {
 
         /************************** RELICS OF A BYGONE ERA ***************************************/
         // Sample Services.
-        attributes.put("0000180d-0000-1000-8000-00805f9b34fb", "Heart Rate Service");
-        attributes.put("0000180a-0000-1000-8000-00805f9b34fb", "Device Information Service");
+//        attributes.put("0000180d-0000-1000-8000-00805f9b34fb", "Heart Rate Service");
+//        attributes.put("0000180a-0000-1000-8000-00805f9b34fb", "Device Information Service");
         // Sample Characteristics.
-        attributes.put(HEART_RATE_MEASUREMENT, "Heart Rate Measurement");
-        attributes.put("00002a29-0000-1000-8000-00805f9b34fb", "Manufacturer Name String");
+//        attributes.put(HEART_RATE_MEASUREMENT, "Heart Rate Measurement");
+//        attributes.put("00002a29-0000-1000-8000-00805f9b34fb", "Manufacturer Name String");
 
     }
 
