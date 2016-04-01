@@ -117,6 +117,11 @@ do {\
 /* Store Value into a buffer in Little Endian Format */
 #define STORE_LE_16(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
                                    ((buf)[1] =  (uint8_t) (val>>8) ) )
+																	 
+#define STORE_LE_32(buf, val)    ( ((buf)[0] =  (uint8_t) (val)    ) , \
+                                   ((buf)[1] =  (uint8_t) (val>>8) ) , \
+																	 ((buf)[2] =  (uint8_t) (val>>16) ) , \
+																	 ((buf)[3] =  (uint8_t) (val>>24) )	)																	 
 /**
  * @}
  */
@@ -195,7 +200,7 @@ tBleStatus Free_Fall_Notify(void)
 tBleStatus Acc_Update(Acc_t *data)
 {  
   tBleStatus ret;    
-  uint8_t buff[6];
+  uint8_t buff[4];
     
   STORE_LE_16(buff,data->ROLL);
   STORE_LE_16(buff+2,data->PITCH);
@@ -203,7 +208,7 @@ tBleStatus Acc_Update(Acc_t *data)
   ret = aci_gatt_update_char_value(accServHandle, accCharHandle, 0, 4, buff);
 	
   if (ret != BLE_STATUS_SUCCESS){
-    PRINTF("Error while updating ACC characteristic.\n") ;
+    PRINTF("Error while updating ACC characteristic ugh.\n") ;
     return BLE_STATUS_ERROR ;
   }
   return BLE_STATUS_SUCCESS;	
