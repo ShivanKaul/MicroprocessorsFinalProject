@@ -280,7 +280,6 @@ public class DeviceControlActivity extends Activity {
 
             // Loops through available Characteristics.
             for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                charas.add(gattCharacteristic);
                 HashMap<String, String> currentCharaData = new HashMap<String, String>();
                 uuid = gattCharacteristic.getUuid().toString();
                 String charString = GattAttributes.lookup(uuid, unknownCharaString);
@@ -288,6 +287,7 @@ public class DeviceControlActivity extends Activity {
                 if (charString.contains(unknownCharaString)) {
                     continue;
                 }
+                charas.add(gattCharacteristic);
                 currentCharaData.put(
                         LIST_NAME, charString);
                 currentCharaData.put(LIST_UUID, uuid);
