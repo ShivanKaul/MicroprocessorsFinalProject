@@ -40,15 +40,15 @@ void gpioInit(void) {
 	
 	// 7 segment display
 	// Need the clock to enable gating
-	__HAL_RCC_GPIOB_CLK_ENABLE();
-	GPIO_Init_Disp.Pin = GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13| GPIO_PIN_14 | GPIO_PIN_15
-	| GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 ;
-	GPIO_Init_Disp.Speed = GPIO_SPEED_FREQ_LOW;
-	// To make sure output is not in pull up or pull down mode
-	GPIO_Init_Disp.Mode = GPIO_MODE_OUTPUT_PP;
-	// We manually set the values for the display logic
-	GPIO_Init_Disp.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOB, &GPIO_Init_Disp);
+//	__HAL_RCC_GPIOB_CLK_ENABLE();
+//	GPIO_Init_Disp.Pin = GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13| GPIO_PIN_14 | GPIO_PIN_15
+//	| GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 ;
+//	GPIO_Init_Disp.Speed = GPIO_SPEED_FREQ_LOW;
+//	// To make sure output is not in pull up or pull down mode
+//	GPIO_Init_Disp.Mode = GPIO_MODE_OUTPUT_PP;
+//	// We manually set the values for the display logic
+//	GPIO_Init_Disp.Pull = GPIO_NOPULL;
+//	HAL_GPIO_Init(GPIOB, &GPIO_Init_Disp);
 }
 
 

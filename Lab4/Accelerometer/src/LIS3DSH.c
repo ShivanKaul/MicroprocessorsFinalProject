@@ -532,13 +532,13 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 
 			GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
 			GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-			GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
+			GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
 			GPIO_InitStructure.Alternate = GPIO_AF5_SPI2; //SPI2_SCK_AF
 
 			/* SPI SCK pin configuration */
 			GPIO_InitStructure.Pin = SPI2_SCK_PIN;
 			HAL_GPIO_Init(SPI2_SCK_GPIO_PORT, &GPIO_InitStructure);
-
+GPIO_InitStructure.Pull  = GPIO_NOPULL;
 			/* SPI  MOSI pin configuration */
 			GPIO_InitStructure.Pin =  SPI2_MOSI_PIN;
 			HAL_GPIO_Init(LIS3DSH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
@@ -548,8 +548,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 			HAL_GPIO_Init(SPI2_MISO_GPIO_PORT, &GPIO_InitStructure);
 			
 			GPIO_InitStructure.Pin   = SPI2_CS_PIN;
-			GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP;
-			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
+			GPIO_InitStructure.Mode  = GPIO_MODE_INPUT;
+			GPIO_InitStructure.Pull  = GPIO_PULLUP;
+			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
 			HAL_GPIO_Init(SPI2_CS_GPIO_PORT, &GPIO_InitStructure);
 
 			/* Deselect : Chip Select high */

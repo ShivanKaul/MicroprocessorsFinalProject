@@ -56,12 +56,12 @@ int main (void) {
   	SystemClock_Config();                     /* Configure the System Clock     */
 	
 	// Initialize 
-	TIM_LED_Init();
+	//TIM_LED_Init();
 	TIM_ADC_Init();
 	LISInit();
 	ADCInit();
 	kalman_init();
-	init_keypad();
+	//init_keypad();
 	matrix_init();
 	gpioInit();
 	
@@ -70,9 +70,9 @@ int main (void) {
 	// Initialize all threads
 	start_Thread_Bluetooth();
 	start_Thread_ADC(); 
-	start_Thread_7Seg();
+	//start_Thread_7Seg();
 	start_Thread_Accelerometer();
-	start_Thread_Keypad();	
+	//start_Thread_Keypad();	
 	
 	osKernelStart();                          /* start thread execution         */
 	osThreadTerminate(main_id);
