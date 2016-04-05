@@ -158,6 +158,7 @@ public class BluetoothLeService extends Service {
 
                 float roll = bb1.getShort() / 100.0f;
                 float pitch = bb2.getShort() / 100.0f;
+
                 String movData = "Roll: " + String.valueOf(roll) +
                         " Pitch: " + String.valueOf(pitch);
                 System.out.println("Mov data is " + movData);
@@ -244,7 +245,7 @@ public class BluetoothLeService extends Service {
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
-            Log.w(TAG, "Device not found.  Unable to connect.");
+            Log.w(TAG, "Device not found. Unable to connect.");
             return false;
         }
         // We want to directly connect to the device, so we are setting the autoConnect
