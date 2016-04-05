@@ -202,8 +202,8 @@ tBleStatus Acc_Update(Acc_t *data)
   tBleStatus ret;    
   uint8_t buff[4];
     
-  STORE_LE_16(buff,data->ROLL);
-  STORE_LE_16(buff+2,data->PITCH);
+  STORE_LE_16(buff,data->ROLL++);
+  STORE_LE_16(buff+2,data->PITCH++);
 	
   ret = aci_gatt_update_char_value(accServHandle, accCharHandle, 0, 4, buff);
 	

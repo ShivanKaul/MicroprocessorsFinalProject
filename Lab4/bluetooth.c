@@ -13,8 +13,16 @@
 
 #define SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 __IO uint32_t  SPITimeout = SPI_FLAG_TIMEOUT;
+
+#define READWRITE_CMD              ((uint8_t)0x80)
+/* Multiple byte read/write command */
 #define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
+/* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
+#define DUMMY_BYTE                 ((uint8_t)0x00)
+
 SPI_HandleTypeDef    Spi2Handle;
+void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
+
 
 /**
   * @brief  SPI Interface pins
@@ -107,7 +115,8 @@ void Thread_Bluetooth(void const *argument){
 		float roll = getSetValue(1,0,0);
 		float pitch = getSetValue(1,0,1);
 		float temp = getSetValue(1,0,2);
-		
+		uint8_t address = 0x0;
+
 		uint8_t testBytesArray[12] = {1,1,1,1,2,1,1,1,3,1,1,1};
 		//DELAY
 		osDelay(1000);
@@ -123,6 +132,12 @@ void Thread_Bluetooth(void const *argument){
 		
 		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
 		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+		
+		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
+		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+		
+		SPI_Write(testBytesArray,12);
+		
 		/**
 		
 		testBytesArray[0] = 2;
@@ -164,41 +179,65 @@ void SPI_Init(void)
   Spi2Handle.Instance 							  = SPI2;
   Spi2Handle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_4; 
   Spi2Handle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  Spi2Handle.Init.CLKPhase 					= SPI_PHASE_1EDGE;
+  Spi2Handle.Init.CLKPhase 						= SPI_PHASE_1EDGE;
   Spi2Handle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
   Spi2Handle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
   Spi2Handle.Init.CRCPolynomial 			= 7;
-  Spi2Handle.Init.DataSize 					= SPI_DATASIZE_8BIT;
-  Spi2Handle.Init.FirstBit 					= SPI_FIRSTBIT_MSB;
+  Spi2Handle.Init.DataSize 						= SPI_DATASIZE_8BIT;
+  Spi2Handle.Init.FirstBit 						= SPI_FIRSTBIT_MSB;
   Spi2Handle.Init.NSS 								= SPI_NSS_SOFT;
-  Spi2Handle.Init.TIMode 						= SPI_TIMODE_DISABLED;
-  Spi2Handle.Init.Mode 							= SPI_MODE_MASTER;
+  Spi2Handle.Init.TIMode 							= SPI_TIMODE_DISABLED;
+  Spi2Handle.Init.Mode 								= SPI_MODE_SLAVE;
 	
-	if (HAL_SPI_Init(&Spi2Handle) != HAL_OK) {printf ("ERROR: Error in initialising SPI1 \n");};
+	if (HAL_SPI_Init(&Spi2Handle) != HAL_OK) {printf ("ERROR: Error in initialising SPI2 \n");};
   
 	__HAL_SPI_ENABLE(&Spi2Handle);
 }
 
-void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
+void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite)
 {
   /* Configure the MS bit:
        - When 0, the address will remain unchanged in multiple read/write commands.
        - When 1, the address will be auto incremented in multiple read/write commands.
   */
-  if(NumByteToWrite > 0x01)
-  {
-    WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
-  }
+
   /* Set chip select Low at the start of the transmission */ 
   CS_LOW();
 
-  /* Send the Address of the indexed register */
-  SPI_SendByte(WriteAddr);
   /* Send the data that will be written into the device (MSB First) */
   while(NumByteToWrite >= 0x01)
   {
     SPI_SendByte(*pBuffer);
     NumByteToWrite--;
+    pBuffer++;
+  }
+
+  /* Set chip select High at the end of the transmission */
+  CS_HIGH();
+}
+
+void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
+{
+  if(NumByteToRead > 0x01)
+  {
+    ReadAddr |= (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD);
+  }
+  else
+  {
+    ReadAddr |= (uint8_t)READWRITE_CMD;
+  }
+  /* Set chip select Low at the start of the transmission */
+  CS_LOW();
+
+  /* Send the Address of the indexed register */
+  SPI_SendByte(ReadAddr);
+
+  /* Receive the data that will be read from the device (MSB First) */
+  while(NumByteToRead > 0x00)
+  {
+    /* Send dummy byte (0x00) to generate the SPI clock to LIS3DSH (Slave device) */
+    *pBuffer = SPI_SendByte(DUMMY_BYTE);
+    NumByteToRead--;
     pBuffer++;
   }
 
@@ -224,7 +263,7 @@ static uint8_t SPI_SendByte(uint8_t byte)
   }
 
   /* Send a Byte through the SPI peripheral */
-  SPI_SendData(&Spi2Handle,  byte);
+  Spi2Handle.Instance->DR = byte;
 
   /* Wait to receive a Byte */
   SPITimeout = SPI_FLAG_TIMEOUT;
@@ -236,30 +275,9 @@ static uint8_t SPI_SendByte(uint8_t byte)
   }
 
   /* Return the Byte read from the SPI bus */ 
-  return SPI_ReceiveData(&Spi2Handle);
+  return Spi2Handle.Instance->DR;
 }
 
-/**
-  * @brief  Returns the most recent received data by the SPIx/I2Sx peripheral. 
-  * @param  *hspi: Pointer to the SPI handle. Its member Instance can point to either SPI1, SPI2 or SPI3 
-  * @retval The value of the received data.
-  */
-//uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi)
-//{
-  /* Return the data in the DR register */
-  //return hspi->Instance->DR;
-//}
 
-/**
-  * @brief  Transmits a Data through the SPIx/I2Sx peripheral.
-  * @param  *hspi: Pointer to the SPI handle. Its member Instance can point to either SPI1, SPI2 or SPI3 
-  * @param  Data: Data to be transmitted.
-  * @retval None
-  */
-//void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data)
-//{ 
-  /* Write in the DR register the data to be sent */
-  //hspi->Instance->DR = Data;
-//}
 
 
