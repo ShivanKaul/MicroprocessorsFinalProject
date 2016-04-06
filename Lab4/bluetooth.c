@@ -27,29 +27,6 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
 /**
   * @brief  SPI Interface pins
   */
-#define SPI                       SPI1
-#define SPI_CLK                   RCC_APB2Periph_SPI1
-
-#define SPI_SCK_PIN               GPIO_PIN_13                  /* PB.13 */
-#define SPI_SCK_GPIO_PORT         GPIOB                       /* GPIOA */
-#define SPI_SCK_SOURCE            GPIO_PinSource5
-#define SPI_SCK_AF                GPIO_AF5_SPI2
-
-#define SPI_MISO_PIN              GPIO_PIN_14                 /* PB.14 */
-#define SPI_MISO_GPIO_PORT        GPIOB                       /* GPIOB */
-#define SPI_MISO_GPIO_CLK         RCC_AHB1Periph_GPIOA
-#define SPI_MISO_SOURCE           GPIO_PinSource6
-#define SPI_MISO_AF               GPIO_AF5_SPI2
-
-#define SPI_MOSI_PIN              GPIO_PIN_15                  /* PB.15 */
-#define SPI_MOSI_GPIO_PORT        GPIOB                       /* GPIOB */
-#define SPI_MOSI_GPIO_CLK         RCC_AHB1Periph_GPIOA
-#define SPI_MOSI_SOURCE           GPIO_PinSource7
-#define SPI_MOSI_AF               GPIO_AF5_SPI1
-
-#define SPI_CS_PIN                GPIO_PIN_12                  /* PB.12 */
-#define SPI_CS_GPIO_PORT          GPIOB                       /* GPIOE */
-#define SPI_CS_GPIO_CLK           RCC_AHB1Periph_GPIOE
 
 #define SPI2_DATAREADY_PIN              GPIO_PIN_1                  /* PE.01 */
 #define SPI2_DATAREADY_GPIO_PORT        GPIOB                       /* GPIOB */
@@ -106,7 +83,7 @@ void Thread_Bluetooth(void const *argument){
 
 		uint8_t testBytesArray[12] = {1,1,1,1,2,1,1,1,3,1,1,1};
 		//DELAY
-		osDelay(1000);
+		osDelay(10000);
 		// Now how do I transmit these values via SPI?
 		// We will need some sort of data encoding on this end:
 		// 0 -> roll

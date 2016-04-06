@@ -85,12 +85,23 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 	GPIO_InitStructure.Pin   = Disc_SPI_CS_PIN;
   GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStructure.Pull  = GPIO_NOPULL;
-  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
   HAL_GPIO_Init(Disc_SPI_CS_PORT, &GPIO_InitStructure);
 
   /* Deselect : Chip Select high */
   HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET);
+	/* Deselect : Chip Select high */
+  HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET);
+	
+	GPIO_InitStructure.Pin   = Disc_SPI_IRQ_PIN;
+  GPIO_InitStructure.Mode  = GPIO_MODE_IT_RISING;
+	GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
+  GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+  HAL_GPIO_Init(Disc_SPI_IRQ_PORT, &GPIO_InitStructure);
+	    HAL_NVIC_SetPriority(EXTI1_IRQn, 3, 0);    
+    HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 
+  
 //  /* Configure GPIO PINs to detect Interrupts */
 //  GPIO_InitStructure.Pin   = Disc_SPI_INT1_PIN;
 //  GPIO_InitStructure.Mode  = GPIO_MODE_IT_FALLING;
@@ -118,6 +129,7 @@ void spiReadFromDiscovery(void){
 
 void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 {
+	Disable_SPI_IRQ();
   /* Configure the MS bit:
        - When 0, the address will remain unchanged in multiple read/write commands.
        - When 1, the address will be auto incremented in multiple read/write commands.
@@ -141,10 +153,12 @@ void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 
   /* Set chip select High at the end of the transmission */
   CS_HIGH();
+	Enable_SPI_IRQ();
 }
 
 void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
+	Disable_SPI_IRQ();
   if(NumByteToRead > 0x01)
   {
     ReadAddr |= (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD);
@@ -170,6 +184,7 @@ void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 
   /* Set chip select High at the end of the transmission */
   CS_HIGH();
+	Enable_SPI_IRQ();
 }
 
 
@@ -182,6 +197,7 @@ void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
   */
 uint8_t SPI_SendByte(uint8_t byte)
 {
+
   /* Loop while DR register in not empty */
   SPITimeout = SPI_FLAG_TIMEOUT;
   while (__HAL_SPI_GET_FLAG(&DiscoverySpiHandle, SPI_FLAG_TXE) == RESET)
