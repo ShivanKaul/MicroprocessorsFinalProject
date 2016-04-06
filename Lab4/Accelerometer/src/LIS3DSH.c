@@ -514,7 +514,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 
 			GPIO_InitStructure.Pin = LIS3DSH_SPI_INT2_PIN;
 			HAL_GPIO_Init(LIS3DSH_SPI_INT2_GPIO_PORT, &GPIO_InitStructure);
-	}else if(hspi->Instance == SPI2){
+	}
+	else if(hspi->Instance == SPI2){
 			GPIO_InitTypeDef GPIO_InitStructure;
 		
 			/* Enable the SPI periph */
@@ -552,18 +553,17 @@ GPIO_InitStructure.Pull  = GPIO_NOPULL;
 			GPIO_InitStructure.Pull  = GPIO_PULLUP;
 			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
 			HAL_GPIO_Init(SPI2_CS_GPIO_PORT, &GPIO_InitStructure);
-
-			/* Deselect : Chip Select high */
 			HAL_GPIO_WritePin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN, GPIO_PIN_SET);
+			
+			
+			GPIO_InitStructure.Pin   = SPI2_DATAREADY_PIN;
+			GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStructure.Pull  = GPIO_NOPULL;
+			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+			HAL_GPIO_Init(SPI2_DATAREADY_GPIO_PORT, &GPIO_InitStructure);
+			HAL_GPIO_WritePin(SPI2_DATAREADY_GPIO_PORT, SPI2_DATAREADY_PIN, GPIO_PIN_RESET);
+			/* Deselect : Chip Select high */
 
-			/* Configure GPIO PINs to detect Interrupts */
-			//GPIO_InitStructure.Pin   = LIS3DSH_SPI_INT1_PIN;
-			//GPIO_InitStructure.Mode  = GPIO_MODE_IT_FALLING;
-			//GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
-			//HAL_GPIO_Init(LIS3DSH_SPI_INT1_GPIO_PORT, &GPIO_InitStructure);
-
-			//GPIO_InitStructure.Pin = LIS3DSH_SPI_INT2_PIN;
-			//HAL_GPIO_Init(LIS3DSH_SPI_INT2_GPIO_PORT, &GPIO_InitStructure);
 	}
 }
 
