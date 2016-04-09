@@ -13,8 +13,13 @@ void Thread_Accelerometer(void const *argument);
 osThreadDef(Thread_Accelerometer, osPriorityAboveNormal, 1, 0);
 void convertAccToAngle(float* acc, float* angles);
 extern arm_matrix_instance_f32 x_matrix,w_matrix,y_matrix;
+int is_outlier(float variance);
 void calculateAngles (void);
 float current_angle;
+
+float ENTER_DOUBLE_TAP;
+float meann = 1022.0;
+float stdd = 42.7030;
 
 #define data_ready_flag 1
 
@@ -53,15 +58,37 @@ extern kalman_state kalman_x, kalman_y,kalman_z;
    */
 void calculateAngles (void) {
 	float angles[3];
+	float magnitude;
+	float variance;
+	
 	// NOTE1: We initially read acceleration in the interrupt, but on discussion
 	// with the TA on Friday, we've pushed it over here for the purposes of 
 	// the code submission.
 	LIS3DSH_ReadACC(out);
+		
 	Kalmanfilter_C (out, out, &kalman_x, 1);
 	Kalmanfilter_C (out+1, out+1, &kalman_y, 1);
 	Kalmanfilter_C (out+2, out+2, &kalman_z, 1);
 	arm_mat_mult_f32(&w_matrix,&x_matrix,&y_matrix);
 	convertAccToAngle(acc, angles);
+	
+	magnitude = sqrt(pow(*out,2) + pow(*(out+1),2) + pow(*(out+2),2));
+	variance = fabs(magnitude - meann);
+	
+	
+	// Check for a double tap
+	if(ENTER_DOUBLE_TAP){
+		if(is_outlier(variance)){
+			printf("DOUBLE TAP!!");
+		}
+		
+		ENTER_DOUBLE_TAP = 0;
+	}else{
+		if(is_outlier(variance)){
+			ENTER_DOUBLE_TAP = 1;
+		}
+	}
+		
 	// Get angles
 	getSetValue(angles[0],1,0);
 	getSetValue(angles[1],1,1);
@@ -110,5 +137,11 @@ void convertAccToAngle(float* acc, float* angles) {
 float absolute(float x) {
 	return x >= 0 ? x : -x;
 }
+
+// Helper function
+int is_outlier(float variance){
+	return variance >= 2.25*stdd ? 1 : 0;
+} 
+
 
 
