@@ -35,7 +35,7 @@ void gpioInit(void) {
 	HAL_GPIO_Init(GPIOE, &GPIO_Init_Acc);
 	
 	// Set priority for the accelerometer
-	HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
+	HAL_NVIC_SetPriority(EXTI0_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 	
 	// 7 segment display
@@ -115,7 +115,7 @@ void TIM_LED_Init(void)
 	HAL_TIM_Base_Start_IT(&TIM_LED_handle);
 
 	// Set up NVIC
-	HAL_NVIC_SetPriority(TIM2_IRQn, 3,0);
+	HAL_NVIC_SetPriority(TIM2_IRQn, 4,0);
 	HAL_NVIC_EnableIRQ(TIM2_IRQn);
 	
 
@@ -144,7 +144,7 @@ void TIM_ADC_Init(void)
 	HAL_TIM_Base_Start_IT(&TIM_ADC_handle);
 
 	// Set up NVIC
-	HAL_NVIC_SetPriority(TIM3_IRQn, 1,0);
+	HAL_NVIC_SetPriority(TIM3_IRQn, 2,0);
 	HAL_NVIC_EnableIRQ(TIM3_IRQn);
 	
 

@@ -366,7 +366,7 @@ void LIS3DSH_ReadACC(float* out)
       for(i=0; i<0x06; i=i+2)
       {
 				aggregateResult = (int32_t)(buffer[i] | buffer[i+1] << 8);
-        *out =(float)(LIS3DSH_SENSITIVITY_2G * (float)aggregateResult);
+        *out =(float)((float)LIS3DSH_SENSITIVITY_2G * (float)aggregateResult);
         out++;
       }
       break;
@@ -376,7 +376,7 @@ void LIS3DSH_ReadACC(float* out)
       for(i=0; i<0x06; i=i+2)
       {
 				aggregateResult = (int32_t)(buffer[i] | buffer[i+1] << 8);
-        *out =(float)(LIS3DSH_SENSITIVITY_4G * (float)aggregateResult);
+        *out =(float)((float)LIS3DSH_SENSITIVITY_4G * (float)aggregateResult);
         out++;
       }
       break;
@@ -386,7 +386,7 @@ void LIS3DSH_ReadACC(float* out)
       for(i=0; i<0x06; i=i+2)
       {
 				aggregateResult = (int32_t)(buffer[i] | buffer[i+1] << 8);
-        *out =(float)(LIS3DSH_SENSITIVITY_6G * (float)aggregateResult);
+        *out =(float)((float)LIS3DSH_SENSITIVITY_6G * (float)aggregateResult);
         out++;
       }
       break;
@@ -396,7 +396,7 @@ void LIS3DSH_ReadACC(float* out)
       for(i=0; i<0x06; i=i+2)
       {
 				aggregateResult = (int32_t)(buffer[i] | buffer[i+1] << 8);
-        *out =(float)(LIS3DSH_SENSITIVITY_8G * (float)aggregateResult);
+        *out =(float)((float)LIS3DSH_SENSITIVITY_8G * (float)aggregateResult);
         out++;
       }
       break;
@@ -406,7 +406,7 @@ void LIS3DSH_ReadACC(float* out)
       for(i=0; i<0x06; i=i+2)
       {
 				aggregateResult = (int32_t)(buffer[i] | buffer[i+1] << 8);
-        *out =(float)(LIS3DSH_SENSITIVITY_16G * (float)aggregateResult);
+        *out =(float)((float)LIS3DSH_SENSITIVITY_16G * (float)aggregateResult);
         out++;
       }
       break;
@@ -532,13 +532,13 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 
 			GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
 			GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-			GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+			GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
 			GPIO_InitStructure.Alternate = GPIO_AF5_SPI2; //SPI2_SCK_AF
 
 			/* SPI SCK pin configuration */
 			GPIO_InitStructure.Pin = SPI2_SCK_PIN;
 			HAL_GPIO_Init(SPI2_SCK_GPIO_PORT, &GPIO_InitStructure);
-GPIO_InitStructure.Pull  = GPIO_NOPULL;
+			GPIO_InitStructure.Pull  = GPIO_NOPULL;
 			/* SPI  MOSI pin configuration */
 			GPIO_InitStructure.Pin =  SPI2_MOSI_PIN;
 			HAL_GPIO_Init(LIS3DSH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
@@ -550,17 +550,18 @@ GPIO_InitStructure.Pull  = GPIO_NOPULL;
 			GPIO_InitStructure.Pin   = SPI2_CS_PIN;
 			GPIO_InitStructure.Mode  = GPIO_MODE_INPUT;
 			GPIO_InitStructure.Pull  = GPIO_PULLUP;
-			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
 			HAL_GPIO_Init(SPI2_CS_GPIO_PORT, &GPIO_InitStructure);
 
 			/* Deselect : Chip Select high */
 			HAL_GPIO_WritePin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN, GPIO_PIN_SET);
 
 			/* Configure GPIO PINs to detect Interrupts */
-			//GPIO_InitStructure.Pin   = LIS3DSH_SPI_INT1_PIN;
-			//GPIO_InitStructure.Mode  = GPIO_MODE_IT_FALLING;
-			//GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
-			//HAL_GPIO_Init(LIS3DSH_SPI_INT1_GPIO_PORT, &GPIO_InitStructure);
+			GPIO_InitStructure.Pin   = SPI2_IRQ_PIN;
+			GPIO_InitStructure.Mode  = GPIO_MODE_IT_RISING;
+			GPIO_InitStructure.Pull  = GPIO_NOPULL;
+			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
+			HAL_GPIO_Init(SPI2_IRQ_PORT, &GPIO_InitStructure);
 
 			//GPIO_InitStructure.Pin = LIS3DSH_SPI_INT2_PIN;
 			//HAL_GPIO_Init(LIS3DSH_SPI_INT2_GPIO_PORT, &GPIO_InitStructure);

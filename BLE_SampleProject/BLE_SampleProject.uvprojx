@@ -463,14 +463,14 @@
           <GroupName>BLE/HCI/Controller</GroupName>
           <Files>
             <File>
-              <FileName>bluenrg_gap_aci.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\BLE\STM32_BlueNRG\SimpleBlueNRG_HCI\hci\controller\bluenrg_gap_aci.c</FilePath>
-            </File>
-            <File>
               <FileName>bluenrg_gatt_aci.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\BLE\STM32_BlueNRG\SimpleBlueNRG_HCI\hci\controller\bluenrg_gatt_aci.c</FilePath>
+            </File>
+            <File>
+              <FileName>bluenrg_gap_aci.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\BLE\STM32_BlueNRG\SimpleBlueNRG_HCI\hci\controller\bluenrg_gap_aci.c</FilePath>
             </File>
             <File>
               <FileName>bluenrg_hal_aci.c</FileName>

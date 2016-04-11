@@ -83,6 +83,7 @@
 extern volatile uint8_t set_connectable;
 extern volatile int connected;
 extern Acc_t acc_data;
+tClockTime last_time;
 uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB04A1 is used */
 /**
  * @}
@@ -131,6 +132,7 @@ int main(void)
   uint16_t fwVersion;
   
   int ret;  
+	
   
   /* STM32Cube HAL library initialization:
    *  - Configure the Flash prefetch, Flash preread and Buffer caches
@@ -276,10 +278,13 @@ int main(void)
 
   /* Set output power level */
   ret = aci_hal_set_tx_power_level(1,4);
-
+	last_time= Clock_Time();
   while(1)
   {
-		spiReadFromDiscovery();
+		if ((Clock_Time() -last_time) > 1000){
+			spiReadFromDiscovery();
+			last_time = Clock_Time();
+		}
     HCI_Process();
     User_Process(&acc_data);
 #if NEW_SERVICES

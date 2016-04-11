@@ -164,13 +164,22 @@ typedef struct
 #define SPI2_CS_GPIO_PORT          GPIOB                       /* GPIOB */
 #define SPI2_CS_GPIO_CLK           RCC_AHB1Periph_GPIOB
 
-#define SPI2_INT1_PIN              GPIO_PIN_0                  /* PE.00 */
-#define SPI2_INT1_GPIO_PORT        GPIOE                       /* GPIOE */
-#define SPI2_INT1_GPIO_CLK         RCC_AHB1Periph_GPIOE
-#define SPI2_INT1_EXTI_LINE        EXTI_Line0
-#define SPI2_INT1_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
-#define SPI2_INT1_EXTI_PIN_SOURCE  EXTI_PinSource0
-#define SPI2_INT1_EXTI_IRQn        EXTI0_IRQn
+// IRQ: PB.1
+#define SPI2_IRQ_PIN            GPIO_PIN_1
+#define SPI2_IRQ_MODE           GPIO_MODE_IT_RISING
+#define SPI2_IRQ_PULL           GPIO_NOPULL
+#define SPI2_IRQ_SPEED          GPIO_SPEED_HIGH
+#define SPI2_IRQ_ALTERNATE      1
+#define SPI2_IRQ_PORT           GPIOB
+#define SPI2_IRQ_CLK_ENABLE()   __GPIOB_CLK_ENABLE()
+
+// EXTI External Interrupt for SPI
+// NOTE: if you change the IRQ pin remember to implement a corresponding handler
+// function like EXTI0_IRQHandler() in the user project
+#define SPI2_EXTI_IRQn          EXTI1_IRQn
+#define SPI2_EXTI_IRQHandler    EXTI1_IRQHandler
+#define SPI2_EXTI_PIN           SPI2_IRQ_PIN
+#define SPI2_EXTI_PORT          SPI2_IRQ_PORT
 
 #define SPI2_INT2_PIN              GPIO_PIN_1                  /* PE.01 */
 #define SPI2_INT2_GPIO_PORT        GPIOE                       /* GPIOE */

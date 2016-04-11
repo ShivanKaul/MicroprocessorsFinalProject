@@ -27,49 +27,10 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
 /**
   * @brief  SPI Interface pins
   */
-#define SPI                       SPI1
-#define SPI_CLK                   RCC_APB2Periph_SPI1
 
-#define SPI_SCK_PIN               GPIO_PIN_5                  /* PA.05 */
-#define SPI_SCK_GPIO_PORT         GPIOA                       /* GPIOA */
-#define SPI_SCK_GPIO_CLK          RCC_AHB1Periph_GPIOA
-#define SPI_SCK_SOURCE            GPIO_PinSource5
-#define SPI_SCK_AF                GPIO_AF5_SPI1
 
-#define SPI_MISO_PIN              GPIO_PIN_6                  /* PA.6 */
-#define SPI_MISO_GPIO_PORT        GPIOA                       /* GPIOA */
-#define SPI_MISO_GPIO_CLK         RCC_AHB1Periph_GPIOA
-#define SPI_MISO_SOURCE           GPIO_PinSource6
-#define SPI_MISO_AF               GPIO_AF5_SPI1
 
-#define SPI_MOSI_PIN              GPIO_PIN_7                  /* PA.7 */
-#define SPI_MOSI_GPIO_PORT        GPIOA                       /* GPIOA */
-#define SPI_MOSI_GPIO_CLK         RCC_AHB1Periph_GPIOA
-#define SPI_MOSI_SOURCE           GPIO_PinSource7
-#define SPI_MOSI_AF               GPIO_AF5_SPI1
 
-#define SPI_CS_PIN                GPIO_PIN_3                  /* PE.03 */
-#define SPI_CS_GPIO_PORT          GPIOE                       /* GPIOE */
-#define SPI_CS_GPIO_CLK           RCC_AHB1Periph_GPIOE
-
-#define SPI_INT1_PIN              GPIO_PIN_0                  /* PE.00 */
-#define SPI_INT1_GPIO_PORT        GPIOE                       /* GPIOE */
-#define SPI_INT1_GPIO_CLK         RCC_AHB1Periph_GPIOE
-#define SPI_INT1_EXTI_LINE        EXTI_Line0
-#define SPI_INT1_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
-#define SPI_INT1_EXTI_PIN_SOURCE  EXTI_PinSource0
-#define SPI_INT1_EXTI_IRQn        EXTI0_IRQn
-
-#define SPI_INT2_PIN              GPIO_PIN_1                  /* PE.01 */
-#define SPI_INT2_GPIO_PORT        GPIOE                       /* GPIOE */
-#define SPI_INT2_GPIO_CLK         RCC_AHB1Periph_GPIOE
-#define SPI_INT2_EXTI_LINE        EXTI_Line1
-#define SPI_INT2_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
-#define SPI_INT2_EXTI_PIN_SOURCE  EXTI_PinSource1
-#define SPI_INT2_EXTI_IRQn        EXTI1_IRQn
-
-#define CS_LOW()       HAL_GPIO_WritePin(SPI_CS_GPIO_PORT, SPI_CS_PIN, GPIO_PIN_RESET)
-#define CS_HIGH()      HAL_GPIO_WritePin(SPI_CS_GPIO_PORT, SPI_CS_PIN, GPIO_PIN_SET)
 
 // Function def
 uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi);
@@ -126,17 +87,17 @@ void Thread_Bluetooth(void const *argument){
 		// 1 -> pitch
 		// 2 -> temp
 		
-		rollArr = (uint8_t *) &roll;
-		pitchArr = (uint8_t *) &pitch;
-		tempArr = (uint8_t *) &temp;
-		
-		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
-		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
-		
-		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
-		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
-		
-		SPI_Write(testBytesArray,12);
+//		rollArr = (uint8_t *) &roll;
+//		pitchArr = (uint8_t *) &pitch;
+//		tempArr = (uint8_t *) &temp;
+//		
+//		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
+//		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+//		
+//		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
+//		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+//		
+//		SPI_Write(testBytesArray,12);
 		
 		/**
 		
@@ -168,6 +129,15 @@ void Thread_Bluetooth(void const *argument){
 		
 	}
 }
+void test_SPI(void){
+uint8_t testBytesArray[12] = {5,3,7,1,2,1,1,1,3,1,1,1};
+
+		
+		printf("hi  guys! %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
+		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+				
+		SPI_Write(testBytesArray,12);
+}
 
 void SPI_Init(void)
 {
@@ -192,17 +162,12 @@ void SPI_Init(void)
 	if (HAL_SPI_Init(&Spi2Handle) != HAL_OK) {printf ("ERROR: Error in initialising SPI2 \n");};
   
 	__HAL_SPI_ENABLE(&Spi2Handle);
+	HAL_NVIC_SetPriority(EXTI1_IRQn, 1, 0);    
+  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 }
 
 void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite)
 {
-  /* Configure the MS bit:
-       - When 0, the address will remain unchanged in multiple read/write commands.
-       - When 1, the address will be auto incremented in multiple read/write commands.
-  */
-
-  /* Set chip select Low at the start of the transmission */ 
-  CS_LOW();
 
   /* Send the data that will be written into the device (MSB First) */
   while(NumByteToWrite >= 0x01)
@@ -213,21 +178,10 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite)
   }
 
   /* Set chip select High at the end of the transmission */
-  CS_HIGH();
 }
 
 void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
-  if(NumByteToRead > 0x01)
-  {
-    ReadAddr |= (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD);
-  }
-  else
-  {
-    ReadAddr |= (uint8_t)READWRITE_CMD;
-  }
-  /* Set chip select Low at the start of the transmission */
-  CS_LOW();
 
   /* Send the Address of the indexed register */
   SPI_SendByte(ReadAddr);
@@ -241,8 +195,7 @@ void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
     pBuffer++;
   }
 
-  /* Set chip select High at the end of the transmission */
-  CS_HIGH();
+
 }
 
 
