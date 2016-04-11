@@ -13,14 +13,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Enable LEDs"
-        android:id="@+id/switch1"
+        android:id="@+id/enable_led"
         android:checked="false"
         android:layout_alignParentTop="true"
         android:layout_alignEnd="@+id/textView"
         android:layout_marginTop="59dp" />
 
     <SeekBar
-        android:layout_width="150dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar"
         android:indeterminate="false"
@@ -32,23 +32,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/radioGroup"
-        android:layout_below="@+id/switch1"
-        android:layout_alignStart="@+id/switch1"
+        android:layout_below="@+id/enable_led"
+        android:layout_alignStart="@+id/enable_led"
         android:layout_marginTop="66dp">
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rotate LEDs Clockwise"
-            android:id="@+id/radioButton"
+            android:id="@+id/rotateClockRadio"
             android:checked="false" />
 
         <RadioButton
             android:layout_width="307dp"
             android:layout_height="wrap_content"
             android:text="Rotate LEDs Anti Clockwise"
-            android:id="@+id/radioButton2"
+            android:id="@+id/rotateAClockRadio"
             android:checked="false" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All On"
+            android:id="@+id/allOnRadio"
+            android:checked="true" />
     </RadioGroup>
 
     <TextView
