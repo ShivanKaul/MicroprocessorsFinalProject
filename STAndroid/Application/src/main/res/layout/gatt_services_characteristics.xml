@@ -16,7 +16,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="10dp">
     <LinearLayout android:orientation="horizontal"
                   android:layout_width="match_parent"
@@ -48,24 +48,132 @@
                   android:layout_height="wrap_content"
                   android:text="@string/disconnected"
                   android:textSize="18sp"/>
+
     </LinearLayout>
-    <LinearLayout android:orientation="horizontal"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_margin="10dp">
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="@string/label_data"
-                  android:textSize="18sp"/>
-        <Space android:layout_width="5dp"
-               android:layout_height="wrap_content"/>
-        <TextView android:id="@+id/data_value"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:text="@string/no_data"
-                  android:textSize="18sp"/>
-    </LinearLayout>
-    <ExpandableListView android:id="@+id/gatt_services_list"
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/table_filler">
+
+    <TableRow android:layout_height="1px" android:background="#BDBDBD">
+        <TextView android:layout_span="2" android:layout_height="1px"
+            android:layout_width="fill_parent" android:text="">
+        </TextView>
+    </TableRow>
+
+    </TableLayout>
+
+    <Space
+        android:layout_width="5dp"
+        android:layout_height="10dp" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/table">
+
+
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent">
+
+            <TextView
+                style="@android:style/TextAppearance.Large"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="Values from board:"
+                android:id="@+id/textView3" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Temperature:"
+                android:textSize="18sp"
+                android:id="@+id/temp_string" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/temp_val"
+                android:layout_gravity="right"
+                android:layout_column="38" />
+
+        </TableRow>
+
+        <TableRow android:layout_height="1px" android:background="#BDBDBD">
+            <TextView android:layout_span="2" android:layout_height="1px"
+                android:layout_width="fill_parent" android:text="">
+            </TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accelerometer: Pitch:"
+                android:textSize="18sp"
+                android:id="@+id/textView2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/pitch_val"
+                android:layout_gravity="right"
+                android:layout_column="38" />
+        </TableRow>
+
+        <TableRow android:layout_height="1px" android:background="#BDBDBD">
+            <TextView android:layout_span="2" android:layout_height="1px"
+                android:layout_width="fill_parent" android:text="">
+            </TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="Accelerometer: Roll:"
+                      android:textSize="18sp"
+                android:id="@+id/roll_string" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/roll_val"
+                android:layout_gravity="right"
+                android:layout_column="38" />
+
+        </TableRow>
+
+        <TableRow android:layout_height="1px" android:background="#BDBDBD">
+            <TextView android:layout_span="2" android:layout_height="1px"
+                android:layout_width="fill_parent" android:text="">
+            </TextView>
+        </TableRow>
+
+    </TableLayout>
+
 </LinearLayout>

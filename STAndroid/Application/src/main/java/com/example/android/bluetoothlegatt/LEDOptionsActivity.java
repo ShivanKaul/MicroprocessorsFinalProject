@@ -18,7 +18,6 @@ public class LEDOptionsActivity extends Activity {
     private Switch enableLED;
     private RadioGroup radioButtons;
     private RadioButton allOn;
-//    private RadioButton allOn;
     private SeekBar seekBar;
 
     @Override
