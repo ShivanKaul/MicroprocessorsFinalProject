@@ -166,7 +166,6 @@ public class DeviceControlActivity extends Activity {
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
-        runnable.run();
     }
 
     @Override
@@ -203,6 +202,7 @@ public class DeviceControlActivity extends Activity {
             menu.findItem(R.id.menu_disconnect).setVisible(false);
         }
         return true;
+
     }
 
     @Override
