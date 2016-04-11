@@ -120,7 +120,6 @@ void User_Process(Acc_t* p_axes);
  * @param  None
  * @retval None
  */
- int  readdiscoveryflag;
 int main(void)
 {
   const char *name = "BlueG07";
@@ -279,12 +278,8 @@ int main(void)
   ret = aci_hal_set_tx_power_level(1,4);
 
   while(1)
-  {	
-		//readdiscoveryflag=0;
-		if (readdiscoveryflag){
-			readdiscoveryflag=0;
-			spiReadFromDiscovery();
-		}
+  {
+		spiReadFromDiscovery();
     HCI_Process();
     User_Process(&acc_data);
 #if NEW_SERVICES

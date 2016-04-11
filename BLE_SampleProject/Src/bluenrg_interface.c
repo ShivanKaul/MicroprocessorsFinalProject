@@ -44,7 +44,7 @@
 #include "stm32_bluenrg_ble.h"
 
 extern SPI_HandleTypeDef SpiHandle;
-extern int  readdiscoveryflag;
+
 /**
  * @brief  EXTI line detection callback.
  * @param  Specifies the pins connected EXTI line
@@ -52,12 +52,11 @@ extern int  readdiscoveryflag;
  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	
 	if (GPIO_Pin==GPIO_PIN_0){
 		HCI_Isr();
 	}
 	if (GPIO_Pin==GPIO_PIN_1){
-			readdiscoveryflag=1;
+		//HCI_Isr();
 	}
 }
 

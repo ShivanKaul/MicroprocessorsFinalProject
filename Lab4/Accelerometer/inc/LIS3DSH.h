@@ -144,16 +144,19 @@ typedef struct
 
 #define SPI2_SCK_PIN               GPIO_PIN_13                  /* PB.13 */
 #define SPI2_SCK_GPIO_PORT         GPIOB                       /* GPIOB */
+#define SPI2_SCK_GPIO_CLK          RCC_AHB1Periph_GPIOB
 #define SPI2_SCK_SOURCE            GPIO_PinSource13
 #define SPI2_SCK_AF                GPIO_AF5_SPI2
 
 #define SPI2_MISO_PIN              GPIO_PIN_14                  /* PB.14 */
 #define SPI2_MISO_GPIO_PORT        GPIOB                       /* GPIOA */
+#define SPI2_MISO_GPIO_CLK         RCC_AHB1Periph_GPIOB
 #define SPI2_MISO_SOURCE           GPIO_PinSource14
 #define SPI2_MISO_AF               GPIO_AF5_SPI2
 
 #define SPI2_MOSI_PIN              GPIO_PIN_15                  /* PB.15 */
 #define SPI2_MOSI_GPIO_PORT        GPIOB                       /* GPIOB */
+#define SPI2_MOSI_GPIO_CLK         RCC_AHB1Periph_GPIOB
 #define SPI2_MOSI_SOURCE           GPIO_PinSource15 
 #define SPI2_MOSI_AF               GPIO_AF5_SPI2
 
@@ -161,10 +164,21 @@ typedef struct
 #define SPI2_CS_GPIO_PORT          GPIOB                       /* GPIOB */
 #define SPI2_CS_GPIO_CLK           RCC_AHB1Periph_GPIOB
 
-#define SPI2_DATAREADY_PIN              GPIO_PIN_1                  /* PE.01 */
-#define SPI2_DATAREADY_GPIO_PORT        GPIOB                       /* GPIOB */
-#define SPI2_DATAREADY_MODE        GPIO_NOPULL 
+#define SPI2_INT1_PIN              GPIO_PIN_0                  /* PE.00 */
+#define SPI2_INT1_GPIO_PORT        GPIOE                       /* GPIOE */
+#define SPI2_INT1_GPIO_CLK         RCC_AHB1Periph_GPIOE
+#define SPI2_INT1_EXTI_LINE        EXTI_Line0
+#define SPI2_INT1_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
+#define SPI2_INT1_EXTI_PIN_SOURCE  EXTI_PinSource0
+#define SPI2_INT1_EXTI_IRQn        EXTI0_IRQn
 
+#define SPI2_INT2_PIN              GPIO_PIN_1                  /* PE.01 */
+#define SPI2_INT2_GPIO_PORT        GPIOE                       /* GPIOE */
+#define SPI2_INT2_GPIO_CLK         RCC_AHB1Periph_GPIOE
+#define SPI2_INT2_EXTI_LINE        EXTI_Line1
+#define SPI2_INT2_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
+#define SPI2_INT2_EXTI_PIN_SOURCE  EXTI_PinSource1
+#define SPI2_INT2_EXTI_IRQn        EXTI1_IRQn
 
 
 /******************************************************************************/

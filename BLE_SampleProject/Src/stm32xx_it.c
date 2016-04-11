@@ -147,8 +147,7 @@ void BNRG_SPI_EXTI_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(BNRG_SPI_EXTI_PIN);
 }
 
-
-void EXTI1_IRQHandler(void)
+void SPI_EXTI_IRQHandler(void)
 {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
 }
