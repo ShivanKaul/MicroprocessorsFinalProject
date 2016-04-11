@@ -103,6 +103,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
 void spiReadFromDiscovery(void){
 	uint8_t a[12];
+	float *b = (float *) a;
 	
 	printf("BEFORE READING: \n");
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
@@ -116,7 +117,8 @@ void spiReadFromDiscovery(void){
 	//printf("AFTER READING: STATUS = %d \n", readStatus);
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
-	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
+	printf("First 4 bytes: %f, %f, %f \n",b[0],b[1],b[2]);
+	
 }
 
 void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)

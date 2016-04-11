@@ -129,12 +129,13 @@ void Thread_Bluetooth(void const *argument){
 		
 	}
 }
+extern float displayed_values[]; 
 void test_SPI(void){
-uint8_t testBytesArray[12] = {5,3,7,1,2,1,1,1,3,1,1,1};
-
+uint8_t *testBytesArray = (uint8_t *)displayed_values;//{5,3,7,1,2,1,1,1,3,1,1,1};
+		
 		
 		printf("hi  guys! %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
-		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+		printf("values: %f %f %f \n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
 				
 		SPI_Write(testBytesArray,12);
 }
