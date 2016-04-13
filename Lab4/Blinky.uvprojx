@@ -438,11 +438,6 @@
               <FilePath>.\Sources\Thread_ADC.c</FilePath>
             </File>
             <File>
-              <FileName>display.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Sources\display.c</FilePath>
-            </File>
-            <File>
               <FileName>interthread.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Sources\interthread.c</FilePath>
@@ -451,11 +446,6 @@
               <FileName>accelerometer.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Sources\accelerometer.c</FilePath>
-            </File>
-            <File>
-              <FileName>keypad.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Sources\keypad.c</FilePath>
             </File>
             <File>
               <FileName>bluetooth.c</FileName>
@@ -914,11 +904,6 @@
               <FilePath>.\Sources\Thread_ADC.c</FilePath>
             </File>
             <File>
-              <FileName>display.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Sources\display.c</FilePath>
-            </File>
-            <File>
               <FileName>interthread.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Sources\interthread.c</FilePath>
@@ -927,11 +912,6 @@
               <FileName>accelerometer.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Sources\accelerometer.c</FilePath>
-            </File>
-            <File>
-              <FileName>keypad.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Sources\keypad.c</FilePath>
             </File>
             <File>
               <FileName>bluetooth.c</FileName>
@@ -1390,11 +1370,6 @@
               <FilePath>.\Sources\Thread_ADC.c</FilePath>
             </File>
             <File>
-              <FileName>display.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Sources\display.c</FilePath>
-            </File>
-            <File>
               <FileName>interthread.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Sources\interthread.c</FilePath>
@@ -1403,11 +1378,6 @@
               <FileName>accelerometer.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Sources\accelerometer.c</FilePath>
-            </File>
-            <File>
-              <FileName>keypad.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Sources\keypad.c</FilePath>
             </File>
             <File>
               <FileName>bluetooth.c</FileName>

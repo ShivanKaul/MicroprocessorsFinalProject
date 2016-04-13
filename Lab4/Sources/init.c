@@ -21,7 +21,7 @@ arm_matrix_instance_f32 x_matrix,w_matrix,y_matrix;
 * @retval None
 */
 void gpioInit(void) {
-	GPIO_InitTypeDef GPIO_Init_Acc, GPIO_Init_Disp;//, GPIO_Init_Keypad_Input,GPIO_Init_Keypad_Output ;
+	GPIO_InitTypeDef GPIO_Init_Acc ;
 	
 	// Accelerometer
 	// E0
@@ -35,20 +35,9 @@ void gpioInit(void) {
 	HAL_GPIO_Init(GPIOE, &GPIO_Init_Acc);
 	
 	// Set priority for the accelerometer
-	HAL_NVIC_SetPriority(EXTI0_IRQn, 3, 0);
+	HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-	
-	// 7 segment display
-	// Need the clock to enable gating
-//	__HAL_RCC_GPIOB_CLK_ENABLE();
-//	GPIO_Init_Disp.Pin = GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13| GPIO_PIN_14 | GPIO_PIN_15
-//	| GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 ;
-//	GPIO_Init_Disp.Speed = GPIO_SPEED_FREQ_LOW;
-//	// To make sure output is not in pull up or pull down mode
-//	GPIO_Init_Disp.Mode = GPIO_MODE_OUTPUT_PP;
-//	// We manually set the values for the display logic
-//	GPIO_Init_Disp.Pull = GPIO_NOPULL;
-//	HAL_GPIO_Init(GPIOB, &GPIO_Init_Disp);
+
 }
 
 
@@ -86,40 +75,6 @@ void LISInit(void) {
 	LIS3DSH_DataReadyInterruptConfig(&LISIntConfig);	
 }
 
-/**
-* @brief Initialize TIM
-* @file init.c
-* @param None
-* @retval None
-*/
-void TIM_LED_Init(void)
-{	
-	// Period is 1 ms for display
-	TIM_Base_InitTypeDef Timinit;
-	__TIM2_CLK_ENABLE();
-	Timinit.Period = 5000; /* 1 MHz to  200 Hz */
-	Timinit.Prescaler = 84; /* 84 MHz to 1 MHz */
-	Timinit.CounterMode = TIM_COUNTERMODE_UP;
-	Timinit.ClockDivision = TIM_CLOCKDIVISION_DIV1; // default
-	
-	// As mandated by lab
-	TIM_LED_handle.Instance = TIM2;
-	TIM_LED_handle.Init = Timinit;
-	TIM_LED_handle.Channel = HAL_TIM_ACTIVE_CHANNEL_CLEARED; //default
-	TIM_LED_handle.Lock = HAL_UNLOCKED;  //default
-	TIM_LED_handle.State = HAL_TIM_STATE_RESET; //default
-
-	HAL_TIM_Base_MspInit(&TIM_LED_handle);
-	
-	HAL_TIM_Base_Init(&TIM_LED_handle);
-	HAL_TIM_Base_Start_IT(&TIM_LED_handle);
-
-	// Set up NVIC
-	HAL_NVIC_SetPriority(TIM2_IRQn, 4,0);
-	HAL_NVIC_EnableIRQ(TIM2_IRQn);
-	
-
-}
 
 void TIM_ADC_Init(void)
 {	
@@ -144,7 +99,7 @@ void TIM_ADC_Init(void)
 	HAL_TIM_Base_Start_IT(&TIM_ADC_handle);
 
 	// Set up NVIC
-	HAL_NVIC_SetPriority(TIM3_IRQn, 2,0);
+	HAL_NVIC_SetPriority(TIM3_IRQn, 1,0);
 	HAL_NVIC_EnableIRQ(TIM3_IRQn);
 	
 

@@ -41,7 +41,7 @@ int start_Thread_ADC (void) {
 */
 void Thread_ADC (void const *argument) {
 		while(1){
-			osSignalWait (ADC_FLAG,osWaitForever); 
+			osSignalWait (ADC_FLAG,10); 
 			osSignalClear(tid_Thread_ADC,ADC_FLAG); 
 			poll();
 		}
@@ -50,8 +50,7 @@ void Thread_ADC (void const *argument) {
 
 extern ADC_HandleTypeDef	ADC1_Handle;
 extern kalman_state kalman_temp;
-float getSetValue(float newValue,int setmode, int index);
-extern float displayed_values[];
+float setTemperature(float);
 	/**
 * @brief Polls the ADC for temperature digitization, and filters using Kalman filter
 * 		> Set alarm if temperature above threshold
@@ -72,9 +71,8 @@ void poll() {
 			
 			// Use Kalman filter to get filtered value and store in 'filtered_temp'
 			Kalmanfilter_C(&temperature, &filtered_temp, &kalman_temp, 1);
-		
-	//	printf("%f\n", filtered_temp);
-			displayed_values[2]=(filtered_temp);
+
+			setTemperature(filtered_temp);
 			__HAL_ADC_CLEAR_FLAG(&ADC1_Handle,ADC_FLAG_EOC);
 			
 	}

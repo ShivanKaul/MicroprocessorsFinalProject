@@ -156,31 +156,14 @@ void EXTI0_IRQHandler(void){
  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
 
-
-/**
-  * @brief  This function handles EXTI1 interrupt request.
-  * @param  None
-  * @retval None
-  */
-void EXTI1_IRQHandler(void){
- HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
-}
-void test_SPI(void);
 /**
   * @brief  This function handles accelerometer interrupt
   * @param  uint16_t GPIO_Pin
   * @retval None
   */
-#define bleh 5
-int tim ;
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if (GPIO_Pin==GPIO_PIN_0){
 		 osSignalSet (tid_Thread_Accelerometer, data_ready_flag);
-	}if (GPIO_Pin==GPIO_PIN_1){
-		//if (!(tim--)){
-		 test_SPI();
-		 //tim = bleh;
-		//}
 	}
 }
 
@@ -208,10 +191,7 @@ extern TIM_HandleTypeDef TIM_LED_handle;
   * @retval None
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* tim){
-		if (tim->Instance== TIM2){
-			osSignalSet (tid_Thread_7Seg, Seg7_MS_PASSED);			
-		}
-		else if(tim->Instance== TIM3){
+		if(tim->Instance== TIM3){
 			osSignalSet (tid_Thread_ADC, ADC_FLAG);
 		}
 }

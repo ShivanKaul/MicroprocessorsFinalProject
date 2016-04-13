@@ -41,16 +41,15 @@ int start_Thread_Accelerometer	(void){
   */
 void Thread_Accelerometer(void const *argument){
 	while(1){
-	osSignalWait (data_ready_flag,osWaitForever); 
+	osSignalWait (data_ready_flag,40); 
 	osSignalClear(tid_Thread_Accelerometer,data_ready_flag); 
 	calculateAngles();
 	}
 	
 }
-extern float getSetValue(float newValue,int setmode, int index);
+extern float setAcceleration(float* newValues, int double_tap);
 extern float out[], acc[];
 extern kalman_state kalman_x, kalman_y,kalman_z;
-extern float displayed_values[];
 /**
    * @brief Calculates angles - filter them and use calibration matrix
    * POSITIONING_AXIS specifies which axis to use for positioning
@@ -91,8 +90,8 @@ void calculateAngles (void) {
 	}
 		
 	// Get angles
-	displayed_values[0]=angles[0];
-	displayed_values[1]=angles[1];
+	setAcceleration(angles,0);
+
 }
 
 /**
@@ -141,7 +140,7 @@ float absolute(float x) {
 
 // Helper function
 int is_outlier(float variance){
-	return variance >= 2.25*stdd ? 1 : 0;
+	return variance >= 2.25f*stdd ? 1 : 0;
 } 
 
 

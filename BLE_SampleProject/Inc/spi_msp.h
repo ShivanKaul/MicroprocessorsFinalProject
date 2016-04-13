@@ -49,22 +49,22 @@
 
 
 
-// SCLK: PB.13
+// SCLK: PA.5
 #define Disc_SPI_SCLK_PIN           GPIO_PIN_13
 #define Disc_SPI_SCLK_PORT          GPIOB
 #define Disc_SPI_SCLK_CLK_ENABLE()  __GPIOB_CLK_ENABLE()
 
-// MISO (Master Input Slave Output): PB.14
+// MISO (Master Input Slave Output): PA.6
 #define Disc_SPI_MISO_PIN           GPIO_PIN_14
 #define Disc_SPI_MISO_PORT          GPIOB 
 #define Disc_SPI_MISO_CLK_ENABLE()  __GPIOB_CLK_ENABLE()
 
-// MOSI (Master Output Slave Input): PB.15
+// MOSI (Master Output Slave Input): PA.7
 #define Disc_SPI_MOSI_PIN           GPIO_PIN_15
 #define Disc_SPI_MOSI_PORT          GPIOB
 #define Disc_SPI_MOSI_CLK_ENABLE()  __GPIOB_CLK_ENABLE()
 
-// NSS/CSN/CS: PB.12
+// NSS/CSN/CS: PA.1
 #define Disc_SPI_CS_PIN             GPIO_PIN_12
 #define Disc_SPI_CS_MODE            GPIO_MODE_OUTPUT_PP
 #define Disc_SPI_CS_PULL            GPIO_PULLUP
@@ -73,7 +73,7 @@
 #define Disc_SPI_CS_PORT            GPIOB
 #define Disc_SPI_CS_CLK_ENABLE()    __GPIOB_CLK_ENABLE()
 
-// IRQ: PB.1
+// IRQ: PA.0
 #define Disc_SPI_IRQ_PIN            GPIO_PIN_1
 #define Disc_SPI_IRQ_MODE           GPIO_MODE_IT_RISING
 #define Disc_SPI_IRQ_PULL           GPIO_NOPULL

@@ -20,15 +20,11 @@ extern int start_Thread_Accelerometer			(void);
 extern void Thread_Accelerometer(void const *argument);
 extern osThreadId tid_Thread_Accelerometer;
 
-extern void SPI_Init(void);
+extern int start_Thread_Bluetooth			(void);
+extern void Thread_Bluetooth(void const *argument);
+extern osThreadId tid_Thread_Bluetooth;
 
-extern int start_Thread_7Seg			(void);
-extern void Thread_7Seg(void const *argument);
-extern osThreadId tid_Thread_7Seg;
 
-extern int start_Thread_Keypad	(void);
-extern void Thread_Keypad(void const *argument);
-extern osThreadId tid_Thread_Keypad;
 /**
 	These lines are mandatory to make CMSIS-RTOS RTX work with te new Cube HAL
 */
@@ -46,6 +42,7 @@ kalman_state kalman_temp = INIT_KALMAN;
   * Main function
   */
 int main (void) {
+
 	osThreadId main_id;
   	osKernelInitialize();                     /* initialize CMSIS-RTOS          */
 
@@ -58,16 +55,16 @@ int main (void) {
 	TIM_ADC_Init();
 	LISInit();
 	ADCInit();
-	SPI_Init();
 	kalman_init();
 	//init_keypad();
 	matrix_init();
 	gpioInit();
-	
+ 
+	//
 	main_id = osThreadGetId(); // Get thread id for main
 	
 	// Initialize all threads
-
+	//start_Thread_Bluetooth();
 	start_Thread_ADC(); 
 	//start_Thread_7Seg();
 	start_Thread_Accelerometer();

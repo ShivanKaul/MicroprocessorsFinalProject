@@ -15,13 +15,11 @@ __IO uint32_t  SPITimeout = Disc_SPI_FLAG_TIMEOUT;
 /* Multiple byte read/write command */
 #define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
 /* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
-#define DUMMY_BYTE                 ((uint8_t)0x0F)
+#define DUMMY_BYTE                 ((uint8_t)0x00)
 
 #define SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 #define CS_LOW()       HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_RESET)
 #define CS_HIGH()      HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET)
-#define Dataready_LOW()       HAL_GPIO_WritePin(Disc_SPI_IRQ_PORT, Disc_SPI_IRQ_PIN, GPIO_PIN_RESET)
-#define Dataready_HIGH()       HAL_GPIO_WritePin(Disc_SPI_IRQ_PORT, Disc_SPI_IRQ_PIN, GPIO_PIN_SET)
 
 SPI_HandleTypeDef    DiscoverySpiHandle;
 uint8_t SPI_SendByte(uint8_t byte);
@@ -66,7 +64,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
   GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
   GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-  GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
+  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStructure.Alternate = GPIO_AF5_SPI2;
 
   /* SPI SCK pin configuration */
@@ -87,12 +85,11 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 	GPIO_InitStructure.Pin   = Disc_SPI_CS_PIN;
   GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStructure.Pull  = GPIO_NOPULL;
-  GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
+  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(Disc_SPI_CS_PORT, &GPIO_InitStructure);
 
   /* Deselect : Chip Select high */
-  HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET);
-	Dataready_LOW();
+  //HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET);
 
 //  /* Configure GPIO PINs to detect Interrupts */
 //  GPIO_InitStructure.Pin   = Disc_SPI_INT1_PIN;
@@ -103,30 +100,53 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
 void spiReadFromDiscovery(void){
 	uint8_t a[12];
-	float *b = (float *) a;
 	
-	printf("BEFORE READING: \n");
-	printf("First 4 bytes: %f, %f, %f \n",b[0],b[1],b[2]);
-	
-	printf("<----------------------SPI CALL -------------------->\n\n");
+//	printf("BEFORE READING: \n");
+//	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
+//	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
+//	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
+//	
+	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
 	//CS_LOW();
 	SPI_Read(a, 12, 12);
+	//CS_HIGH();
+	//printf("AFTER READING: STATUS = %d \n", readStatus);
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
-	printf("First 4 bytes: %f, %f, %f \n",b[0],b[1],b[2]);
-	
+	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
 }
 
+void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
+{
+  /* Configure the MS bit:
+       - When 0, the address will remain unchanged in multiple read/write commands.
+       - When 1, the address will be auto incremented in multiple read/write commands.
+  */
+  if(NumByteToWrite > 0x01)
+  {
+    WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
+  }
+  /* Set chip select Low at the start of the transmission */ 
+  CS_LOW();
 
+  /* Send the Address of the indexed register */
+  SPI_SendByte(WriteAddr);
+  /* Send the data that will be written into the device (MSB First) */
+  while(NumByteToWrite >= 0x01)
+  {
+    SPI_SendByte(*pBuffer);
+    NumByteToWrite--;
+    pBuffer++;
+  }
+
+  /* Set chip select High at the end of the transmission */
+  CS_HIGH();
+}
 
 void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
-	
-	Disable_SPI_IRQ();
-	//CS_LOW();
-	Dataready_HIGH();
-//NumByteToRead+=1;
-
+  
+CS_LOW();
   /* Receive the data that will be read from the device (MSB First) */
   while(NumByteToRead > 0x00)
   {
@@ -135,12 +155,9 @@ void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
     NumByteToRead--;
     pBuffer++;
   }
-	Dataready_LOW();
-		//HAL_SPI_Receive(&DiscoverySpiHandle,pBuffer,NumByteToRead,10);
+CS_HIGH();
   /* Set chip select High at the end of the transmission */
   //CS_HIGH();
-	Enable_SPI_IRQ();
-	;
 }
 
 
@@ -161,7 +178,7 @@ uint8_t SPI_SendByte(uint8_t byte)
   }
 
   /* Send a Byte through the SPI peripheral */
-  DiscoverySpiHandle.Instance->DR= byte;
+ DiscoverySpiHandle.Instance->DR=  byte;
 
   /* Wait to receive a Byte */
   SPITimeout = SPI_FLAG_TIMEOUT;
@@ -176,3 +193,25 @@ uint8_t SPI_SendByte(uint8_t byte)
   return DiscoverySpiHandle.Instance->DR;
 }
 
+/**
+  * @brief  Returns the most recent received data by the SPIx/I2Sx peripheral. 
+  * @param  *hspi: Pointer to the SPI handle. Its member Instance can point to either SPI1, SPI2 or SPI3 
+  * @retval The value of the received data.
+  */
+uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi)
+{
+  /* Return the data in the DR register */
+  return hspi->Instance->DR;
+}
+
+/**
+  * @brief  Transmits a Data through the SPIx/I2Sx peripheral.
+  * @param  *hspi: Pointer to the SPI handle. Its member Instance can point to either SPI1, SPI2 or SPI3 
+  * @param  Data: Data to be transmitted.
+  * @retval None
+  */
+void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data)
+{ 
+  /* Write in the DR register the data to be sent */
+  hspi->Instance->DR = Data;
+}
