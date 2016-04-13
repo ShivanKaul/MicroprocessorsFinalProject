@@ -109,11 +109,7 @@ public class DeviceScanActivity extends ListActivity {
             case R.id.menu_stop:
                 scanLeDevice(false);
                 break;
-            case R.id.menu_led:
-                Intent intent = new Intent(this, LEDOptionsActivity.class);
-                finish();
-                startActivity(intent);
-                break;
+
         }
         return true;
     }

@@ -16,7 +16,7 @@
         android:id="@+id/enable_led"
         android:checked="false"
         android:layout_alignParentTop="true"
-        android:layout_alignEnd="@+id/textView"
+        android:layout_alignEnd="@+id/brightness_string"
         android:layout_marginTop="59dp" />
 
     <SeekBar
@@ -62,8 +62,38 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Brightness"
-        android:id="@+id/textView"
+        android:id="@+id/brightness_string"
         android:layout_above="@+id/seekBar"
         android:layout_centerHorizontal="true" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/enable_led"
+        android:layout_alignParentTop="true"
+        android:layout_alignEnd="@+id/seekBar"
+        android:weightSum="1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_state"
+            android:textSize="18sp"
+            android:id="@+id/led_status_string"
+            android:layout_alignParentTop="true"
+            android:layout_alignStart="@+id/seekBar" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/led_connection_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/disconnected"
+        android:textSize="18sp"
+        android:layout_weight="0.68"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/enable_led" />
 
 </RelativeLayout>

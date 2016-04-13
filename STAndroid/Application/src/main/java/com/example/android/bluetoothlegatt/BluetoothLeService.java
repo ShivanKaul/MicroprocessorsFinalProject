@@ -67,8 +67,6 @@ public class BluetoothLeService extends Service {
     public final static String EXTRA_DATA =
             "com.example.bluetooth.le.EXTRA_DATA";
 
-//    public final static UUID UUID_HEART_RATE_MEASUREMENT =
-//            UUID.fromString(GattAttributes.HEART_RATE_MEASUREMENT);
     public final static UUID UUID_ACC_MEASUREMENT =
             UUID.fromString(GattAttributes.ACC_UUID_STRING);
 
@@ -112,6 +110,8 @@ public class BluetoothLeService extends Service {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
         }
+
+
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
