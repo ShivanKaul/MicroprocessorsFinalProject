@@ -532,7 +532,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 
 			GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
 			GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-			GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
+			GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
 			GPIO_InitStructure.Alternate = GPIO_AF5_SPI2; //SPI2_SCK_AF
 
 			/* SPI SCK pin configuration */
@@ -550,7 +550,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 			GPIO_InitStructure.Pin   = SPI2_CS_PIN;
 			GPIO_InitStructure.Mode  = GPIO_MODE_INPUT;
 			GPIO_InitStructure.Pull  = GPIO_PULLUP;
-			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
+			GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
 			HAL_GPIO_Init(SPI2_CS_GPIO_PORT, &GPIO_InitStructure);
 
 			/* Deselect : Chip Select high */
