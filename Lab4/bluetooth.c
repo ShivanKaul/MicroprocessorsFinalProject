@@ -29,8 +29,10 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
   */
 
 
-
+uint8_t SPI_SendByte(uint8_t byte);
 void SPI_Init(void);
+void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
+void SPI_Read(uint8_t* pBuffer, uint16_t NumByteToRead);
 
 // Variables + function names
 
@@ -53,24 +55,26 @@ int start_Thread_Bluetooth	(void){
   if (!tid_Thread_Bluetooth) return(-1); 
   return(0);
 }
-
+void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
 /**
   * @brief  Bluetooth thread
   * @param  argument
   * @retval None
   */
+uint8_t empty[3];
 void Thread_Bluetooth(void const *argument){
 	while(1){
 		 // 1 ms 
 		// Talk to SPI
 		// Send accelerometer, temperature
 		// Get angles
-
-		uint8_t testBytesArray[12] = {5,7,3,1,2,1,1,1,3,1,1,1};
+		
+		uint8_t testBytesArray[12] = {15,7,3,1,2,1,1,1,3,1,1,1};
 		//DELAY
 		osDelay(1000);	
-		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 1000));
-		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+		printf("hi %d ",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 100));
+		
+		printf("values: %d %d %d %d, emp:%d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3],empty[0],empty[1],empty[2]);
 		//SPI_Write(testBytesArray,12);
 		
 		
@@ -87,8 +91,8 @@ void SPI_Init(void)
   Spi2Handle.Instance 							  = SPI2;
   Spi2Handle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_256; 
   Spi2Handle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  Spi2Handle.Init.CLKPhase 						= SPI_PHASE_1EDGE;
-  Spi2Handle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
+  Spi2Handle.Init.CLKPhase 						= SPI_PHASE_2EDGE;
+  Spi2Handle.Init.CLKPolarity 				= SPI_POLARITY_HIGH;
   Spi2Handle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
   Spi2Handle.Init.CRCPolynomial 			= 7;
   Spi2Handle.Init.DataSize 						= SPI_DATASIZE_8BIT;
@@ -103,5 +107,66 @@ void SPI_Init(void)
 }
 
 
+void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite)
+{
 
+
+  /* Send the data that will be written into the device (MSB First) */
+  while(NumByteToWrite >= 0x01)
+  {
+    SPI_SendByte(*pBuffer);
+    NumByteToWrite--;
+    pBuffer++;
+  }
+
+
+}
+
+void SPI_Read(uint8_t* pBuffer, uint16_t NumByteToRead)
+{
+
+
+  /* Receive the data that will be read from the device (MSB First) */
+  while(NumByteToRead > 0x00)
+  {
+    /* Send dummy byte (0x00) to generate the SPI clock to LIS3DSH (Slave device) */
+    *pBuffer = SPI_SendByte(DUMMY_BYTE);
+    NumByteToRead--;
+    pBuffer++;
+  }
+
+}
+
+
+
+/**
+  * @brief  Sends a Byte through the SPI interface and return the Byte received
+  *         from the SPI bus.
+  * @param  Byte : Byte send.
+  * @retval The received byte value
+  */
+uint8_t SPI_SendByte(uint8_t byte)
+{empty[0]=1;//Spi2Handle.Instance->DR;
+  /* Loop while DR register in not empty */
+  SPITimeout = SPI_FLAG_TIMEOUT;
+  while (__HAL_SPI_GET_FLAG(&Spi2Handle, SPI_FLAG_TXE) == RESET)
+  {
+    if((SPITimeout--) == 0) return 0; // Timeout
+  }
+
+  /* Send a Byte through the SPI peripheral */
+  Spi2Handle.Instance->DR = byte;
+
+//  /* Wait to receive a Byte */
+//  SPITimeout = SPI_FLAG_TIMEOUT;
+//  while (__HAL_SPI_GET_FLAG(&Spi2Handle, SPI_FLAG_RXNE) == RESET)
+//  {
+//    if((SPITimeout--) == 0) {
+//			return 0; // Timeout
+//		}
+//  }
+
+  /* Return the Byte read from the SPI bus */ 
+  return Spi2Handle.Instance->DR;
+}
 

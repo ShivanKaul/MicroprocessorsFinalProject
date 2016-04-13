@@ -11,7 +11,14 @@
 #include "kalman.h"
 #include "keypad.h"
 
+#include <stdio.h>
+#include "stm32f4xx.h"
+ 
 
+int fputc(int c, FILE *stream)
+{
+   return(ITM_SendChar(c));
+}
 extern int start_Thread_ADC			(void);
 extern void Thread_ADC(void const *argument);
 extern osThreadId tid_Thread_ADC;
@@ -23,7 +30,6 @@ extern osThreadId tid_Thread_Accelerometer;
 extern int start_Thread_Bluetooth			(void);
 extern void Thread_Bluetooth(void const *argument);
 extern osThreadId tid_Thread_Bluetooth;
-
 
 /**
 	These lines are mandatory to make CMSIS-RTOS RTX work with te new Cube HAL
@@ -42,7 +48,6 @@ kalman_state kalman_temp = INIT_KALMAN;
   * Main function
   */
 int main (void) {
-
 	osThreadId main_id;
   	osKernelInitialize();                     /* initialize CMSIS-RTOS          */
 
@@ -59,12 +64,11 @@ int main (void) {
 	//init_keypad();
 	matrix_init();
 	gpioInit();
- 
-	//
+	
 	main_id = osThreadGetId(); // Get thread id for main
 	
 	// Initialize all threads
-	//start_Thread_Bluetooth();
+	start_Thread_Bluetooth();
 	start_Thread_ADC(); 
 	//start_Thread_7Seg();
 	start_Thread_Accelerometer();

@@ -139,7 +139,6 @@ void UsageFault_Handler(void)
 void DebugMon_Handler(void)
 {
 }
-extern osThreadId tid_Thread_7Seg;
 extern osThreadId tid_Thread_ADC;
 extern osThreadId tid_Thread_Accelerometer;
 extern TIM_HandleTypeDef TIM_ADC_handle,TIM_LED_handle;
@@ -191,7 +190,10 @@ extern TIM_HandleTypeDef TIM_LED_handle;
   * @retval None
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* tim){
-		if(tim->Instance== TIM3){
+		if (tim->Instance== TIM2){
+			//osSignalSet (tid_Thread_7Seg, Seg7_MS_PASSED);			
+		}
+		else if(tim->Instance== TIM3){
 			osSignalSet (tid_Thread_ADC, ADC_FLAG);
 		}
 }

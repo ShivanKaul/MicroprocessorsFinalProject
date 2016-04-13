@@ -11,11 +11,9 @@
 #define Disc_SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 __IO uint32_t  SPITimeout = Disc_SPI_FLAG_TIMEOUT;
 
-#define READWRITE_CMD              ((uint8_t)0x80)
-/* Multiple byte read/write command */
-#define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
+
 /* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
-#define DUMMY_BYTE                 ((uint8_t)0x00)
+#define DUMMY_BYTE                 ((uint8_t)0x63)
 
 #define SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 #define CS_LOW()       HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_RESET)
@@ -38,8 +36,8 @@ void Disc_SPI_Init(void)
   DiscoverySpiHandle.Instance 							  = Disc_SPI_INSTANCE;
   DiscoverySpiHandle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_256;
   DiscoverySpiHandle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  DiscoverySpiHandle.Init.CLKPhase 						= SPI_PHASE_1EDGE;
-  DiscoverySpiHandle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
+  DiscoverySpiHandle.Init.CLKPhase 						= SPI_PHASE_2EDGE;
+  DiscoverySpiHandle.Init.CLKPolarity 				= SPI_POLARITY_HIGH;
   DiscoverySpiHandle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
   DiscoverySpiHandle.Init.CRCPolynomial 			= 7;
   DiscoverySpiHandle.Init.DataSize 						= SPI_DATASIZE_8BIT;
@@ -64,7 +62,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
   GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
   GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
   GPIO_InitStructure.Alternate = GPIO_AF5_SPI2;
 
   /* SPI SCK pin configuration */
@@ -89,7 +87,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
   HAL_GPIO_Init(Disc_SPI_CS_PORT, &GPIO_InitStructure);
 
   /* Deselect : Chip Select high */
-  //HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET);
 
 //  /* Configure GPIO PINs to detect Interrupts */
 //  GPIO_InitStructure.Pin   = Disc_SPI_INT1_PIN;
@@ -99,7 +97,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 }
 
 void spiReadFromDiscovery(void){
-	uint8_t a[12];
+	uint8_t a[12],b[]={63,15,101};
 	
 //	printf("BEFORE READING: \n");
 //	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
@@ -107,13 +105,13 @@ void spiReadFromDiscovery(void){
 //	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
 //	
 	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
-	//CS_LOW();
+	CS_LOW();
 	SPI_Read(a, 12, 12);
-	//CS_HIGH();
+	CS_HIGH();
 	//printf("AFTER READING: STATUS = %d \n", readStatus);
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
-	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
+	printf("Third 4 bytes: %d, %d, %d, %d %d\n",a[8],a[9],a[10],a[11],a[12]);
 }
 
 void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
@@ -122,15 +120,11 @@ void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
        - When 0, the address will remain unchanged in multiple read/write commands.
        - When 1, the address will be auto incremented in multiple read/write commands.
   */
-  if(NumByteToWrite > 0x01)
-  {
-    WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
-  }
+
   /* Set chip select Low at the start of the transmission */ 
   CS_LOW();
 
-  /* Send the Address of the indexed register */
-  SPI_SendByte(WriteAddr);
+
   /* Send the data that will be written into the device (MSB First) */
   while(NumByteToWrite >= 0x01)
   {
@@ -146,7 +140,7 @@ void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
   
-CS_LOW();
+
   /* Receive the data that will be read from the device (MSB First) */
   while(NumByteToRead > 0x00)
   {
@@ -155,9 +149,9 @@ CS_LOW();
     NumByteToRead--;
     pBuffer++;
   }
-CS_HIGH();
+
   /* Set chip select High at the end of the transmission */
-  //CS_HIGH();
+  CS_HIGH();
 }
 
 
