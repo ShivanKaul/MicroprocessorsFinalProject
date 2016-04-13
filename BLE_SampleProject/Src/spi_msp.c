@@ -46,7 +46,7 @@ void Disc_SPI_Init(void)
   DiscoverySpiHandle.Init.CRCPolynomial 			= 7;
   DiscoverySpiHandle.Init.DataSize 						= SPI_DATASIZE_8BIT;
   DiscoverySpiHandle.Init.FirstBit 						= SPI_FIRSTBIT_MSB;
-  DiscoverySpiHandle.Init.NSS 								= SPI_NSS_SOFT;
+  DiscoverySpiHandle.Init.NSS 								= SPI_NSS_HARD_OUTPUT;
   DiscoverySpiHandle.Init.TIMode 							= SPI_TIMODE_DISABLED;
   DiscoverySpiHandle.Init.Mode 								= SPI_MODE_MASTER;
 
@@ -123,7 +123,7 @@ void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
 	
 	Disable_SPI_IRQ();
-	CS_LOW();
+	//CS_LOW();
 	Dataready_HIGH();
 //NumByteToRead+=1;
 
@@ -138,7 +138,7 @@ void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 	Dataready_LOW();
 		//HAL_SPI_Receive(&DiscoverySpiHandle,pBuffer,NumByteToRead,10);
   /* Set chip select High at the end of the transmission */
-  CS_HIGH();
+  //CS_HIGH();
 	Enable_SPI_IRQ();
 	;
 }

@@ -71,7 +71,7 @@ void SPI_Init(void)
   Spi2Handle.Init.CRCPolynomial 			= 7;
   Spi2Handle.Init.DataSize 						= SPI_DATASIZE_8BIT;
   Spi2Handle.Init.FirstBit 						= SPI_FIRSTBIT_MSB;
-  Spi2Handle.Init.NSS 								= SPI_NSS_SOFT;
+  Spi2Handle.Init.NSS 								= SPI_NSS_HARD_INPUT;
   Spi2Handle.Init.TIMode 							= SPI_TIMODE_DISABLED;
   Spi2Handle.Init.Mode 								= SPI_MODE_SLAVE;
 	
