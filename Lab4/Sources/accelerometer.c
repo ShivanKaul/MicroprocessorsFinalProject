@@ -50,6 +50,7 @@ void Thread_Accelerometer(void const *argument){
 extern float getSetValue(float newValue,int setmode, int index);
 extern float out[], acc[];
 extern kalman_state kalman_x, kalman_y,kalman_z;
+extern float displayed_values[];
 /**
    * @brief Calculates angles - filter them and use calibration matrix
    * POSITIONING_AXIS specifies which axis to use for positioning
@@ -90,8 +91,8 @@ void calculateAngles (void) {
 	}
 		
 	// Get angles
-	getSetValue(angles[0],1,0);
-	getSetValue(angles[1],1,1);
+	displayed_values[0]=angles[0];
+	displayed_values[1]=angles[1];
 }
 
 /**

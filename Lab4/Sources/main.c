@@ -20,9 +20,7 @@ extern int start_Thread_Accelerometer			(void);
 extern void Thread_Accelerometer(void const *argument);
 extern osThreadId tid_Thread_Accelerometer;
 
-extern int start_Thread_Bluetooth			(void);
-extern void Thread_Bluetooth(void const *argument);
-extern osThreadId tid_Thread_Bluetooth;
+extern void SPI_Init(void);
 
 extern int start_Thread_7Seg			(void);
 extern void Thread_7Seg(void const *argument);
@@ -60,6 +58,7 @@ int main (void) {
 	TIM_ADC_Init();
 	LISInit();
 	ADCInit();
+	SPI_Init();
 	kalman_init();
 	//init_keypad();
 	matrix_init();
@@ -68,7 +67,7 @@ int main (void) {
 	main_id = osThreadGetId(); // Get thread id for main
 	
 	// Initialize all threads
-	start_Thread_Bluetooth();
+
 	start_Thread_ADC(); 
 	//start_Thread_7Seg();
 	start_Thread_Accelerometer();

@@ -121,71 +121,29 @@ void spiReadFromDiscovery(void){
 	
 }
 
-void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
-{
-  /* Configure the MS bit:
-       - When 0, the address will remain unchanged in multiple read/write commands.
-       - When 1, the address will be auto incremented in multiple read/write commands.
-  */
-//  if(NumByteToWrite > 0x01)
-//  {
-//    WriteAddr |= (uint8_t)MULTIPLEBYTE_CMD;
-//  }
-//  /* Set chip select Low at the start of the transmission */ 
-//  CS_LOW();
 
-//  /* Send the Address of the indexed register */
-//  SPI_SendByte(WriteAddr);
-	Dataready_LOW();
-	Disable_SPI_IRQ();
-	CS_LOW();
-	
-  /* Send the data that will be written into the device (MSB First) */
-  while(NumByteToWrite >= 0x01)
-  {
-    SPI_SendByte(*pBuffer);
-    NumByteToWrite--;
-    pBuffer++;
-  }
-
-  /* Set chip select High at the end of the transmission */
-  CS_HIGH();
-	Enable_SPI_IRQ();
-}
 
 void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
-	Dataready_LOW();
+	Dataready_HIGH();
 	Disable_SPI_IRQ();
 	CS_LOW();
 	
-//  if(NumByteToRead > 0x01)
-//  {
-//    ReadAddr |= (uint8_t)(READWRITE_CMD | MULTIPLEBYTE_CMD);
-//  }
-//  else
-//  {
-//    ReadAddr |= (uint8_t)READWRITE_CMD;
-//  }
-//  /* Set chip select Low at the start of the transmission */
-//  
 
-//  /* Send the Address of the indexed register */
-//  SPI_SendByte(ReadAddr);
 
   /* Receive the data that will be read from the device (MSB First) */
-  while(NumByteToRead > 0x00)
-  {
-    /* Send dummy byte (0x00) to generate the SPI clock to LIS3DSH (Slave device) */
-    *pBuffer = SPI_SendByte(DUMMY_BYTE);
-    NumByteToRead--;
-    pBuffer++;
-  }
-
+//  while(NumByteToRead > 0x00)
+//  {
+//    /* Send dummy byte (0x00) to generate the SPI clock to LIS3DSH (Slave device) */
+//    *pBuffer = SPI_SendByte(DUMMY_BYTE);
+//    NumByteToRead--;
+//    pBuffer++;
+//  }
+		HAL_SPI_Receive(&DiscoverySpiHandle,pBuffer,NumByteToRead,10);
   /* Set chip select High at the end of the transmission */
   CS_HIGH();
 	Enable_SPI_IRQ();
-	Dataready_HIGH();
+	Dataready_LOW();
 }
 
 
@@ -221,25 +179,3 @@ uint8_t SPI_SendByte(uint8_t byte)
   return DiscoverySpiHandle.Instance->DR;
 }
 
-/**
-  * @brief  Returns the most recent received data by the SPIx/I2Sx peripheral. 
-  * @param  *hspi: Pointer to the SPI handle. Its member Instance can point to either SPI1, SPI2 or SPI3 
-  * @retval The value of the received data.
-  */
-uint8_t SPI_ReceiveData(SPI_HandleTypeDef *hspi)
-{
-  /* Return the data in the DR register */
-  return hspi->Instance->DR;
-}
-
-/**
-  * @brief  Transmits a Data through the SPIx/I2Sx peripheral.
-  * @param  *hspi: Pointer to the SPI handle. Its member Instance can point to either SPI1, SPI2 or SPI3 
-  * @param  Data: Data to be transmitted.
-  * @retval None
-  */
-void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data)
-{ 
-  /* Write in the DR register the data to be sent */
-  hspi->Instance->DR = Data;
-}

@@ -1,5 +1,6 @@
 #include "cmsis_os.h" 
 #include "interthread.h"
+#include "stdio.h"
 extern osMutexId  disp_mutex; 
 
 extern osMutexId  alarm_mutex; 
@@ -20,12 +21,13 @@ float displayed_values[3];
    * @retval The current value that was retrieved or set
 */
 float getSetValue(float newValue,int setmode, int index){
-	osMutexWait(disp_mutex,osWaitForever); 
+	//osMutexWait(disp_mutex,osWaitForever); 
 	if (setmode){
 		displayed_values[index]=newValue;
 	}
 	newValue = displayed_values[index];
-	osMutexRelease(disp_mutex); 
+	//printf("value at %d is %f",index, newValue);
+	//osMutexRelease(disp_mutex); 
 	return newValue;
 }
 

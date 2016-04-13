@@ -51,6 +51,7 @@ void Thread_ADC (void const *argument) {
 extern ADC_HandleTypeDef	ADC1_Handle;
 extern kalman_state kalman_temp;
 float getSetValue(float newValue,int setmode, int index);
+extern float displayed_values[];
 	/**
 * @brief Polls the ADC for temperature digitization, and filters using Kalman filter
 * 		> Set alarm if temperature above threshold
@@ -73,7 +74,7 @@ void poll() {
 			Kalmanfilter_C(&temperature, &filtered_temp, &kalman_temp, 1);
 		
 	//	printf("%f\n", filtered_temp);
-			getSetValue(filtered_temp,1,2);
+			displayed_values[2]=(filtered_temp);
 			__HAL_ADC_CLEAR_FLAG(&ADC1_Handle,ADC_FLAG_EOC);
 			
 	}

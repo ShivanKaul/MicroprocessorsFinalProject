@@ -281,7 +281,7 @@ int main(void)
 	last_time= Clock_Time();
   while(1)
   {
-		if ((Clock_Time() -last_time) > 1000){
+		if ((Clock_Time() -last_time) > 100){
 			spiReadFromDiscovery();
 			last_time = Clock_Time();
 		}

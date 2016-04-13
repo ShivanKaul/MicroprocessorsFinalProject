@@ -38,106 +38,17 @@ void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data);
 static uint8_t SPI_SendByte(uint8_t byte);
 void SPI_Init(void);
 
-// Variables + function names
 
-osThreadId tid_Thread_Bluetooth;
-void Thread_Bluetooth(void const *argument);
-osThreadDef(Thread_Bluetooth, osPriorityNormal, 1, 0);
-
-#define data_ready_flag 1
-
-/**
-  * @brief  Start bluetooth thread
-  * @param  None
-  * @retval int
-  */
-int start_Thread_Bluetooth	(void){
-	SPI_Init();
-	tid_Thread_Bluetooth = osThreadCreate(osThread(Thread_Bluetooth), NULL); // Start Bluetooth
-  if (!tid_Thread_Bluetooth) return(-1); 
-  return(0);
-}
-
-/**
-  * @brief  Bluetooth thread
-  * @param  argument
-  * @retval None
-  */
-void Thread_Bluetooth(void const *argument){
-	while(1){
-		 // 1 ms 
-		// Talk to SPI
-		// Send accelerometer, temperature
-		// Get angles
-		uint8_t * rollArr;
-		uint8_t * pitchArr;
-		uint8_t * tempArr;
-		
-		float roll = getSetValue(1,0,0);
-		float pitch = getSetValue(1,0,1);
-		float temp = getSetValue(1,0,2);
-		uint8_t address = 0x0;
-
-		uint8_t testBytesArray[12] = {1,1,1,1,2,1,1,1,3,1,1,1};
-		//DELAY
-		osDelay(1000);
-		// Now how do I transmit these values via SPI?
-		// We will need some sort of data encoding on this end:
-		// 0 -> roll
-		// 1 -> pitch
-		// 2 -> temp
-		
-//		rollArr = (uint8_t *) &roll;
-//		pitchArr = (uint8_t *) &pitch;
-//		tempArr = (uint8_t *) &temp;
-//		
-//		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
-//		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
-//		
-//		printf("hi %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
-//		printf("values: %d %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
-//		
-//		SPI_Write(testBytesArray,12);
-		
-		/**
-		
-		testBytesArray[0] = 2;
-		
-		HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 4, SPI_FLAG_TIMEOUT);
-		
-		testBytesArray[0] = 3;
-		
-		HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 4, SPI_FLAG_TIMEOUT);
-		
-		
-		**/
-		
-		//printf("%f", roll);
-		/*
-		HAL_SPI_TransmitReceive(&SpiHandle, rollArr, 0, 4, SPI_FLAG_TIMEOUT);
-		HAL_SPI_TransmitReceive(&SpiHandle, pitchArr, 0, 4, SPI_FLAG_TIMEOUT);
-		HAL_SPI_TransmitReceive(&SpiHandle, tempArr, 0, 4, SPI_FLAG_TIMEOUT);
-		*/
-		//while (roll) {
-			//roll *= 100;
-			//i = (int *)&roll;
-			
-			//uint8_t byteToSend = (int)(roll) & 0xff;
-			//roll = roll > 8;
-			//HAL_SPI_TransmitReceive(&SpiHandle, iarr, 0, 4, SPI_FLAG_TIMEOUT);
-		//}
-		
-	}
-}
+uint8_t testBytesArray[12];
 extern float displayed_values[]; 
-void test_SPI(void){
-uint8_t *testBytesArray = (uint8_t *)displayed_values;//{5,3,7,1,2,1,1,1,3,1,1,1};
+void test_SPI(void){//(uint8_t*)displayed_values;//
 		
-		
-		printf("hi  guys! %d",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 12, 10000));
-		printf("values: %f %f %f \n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
-				
-		SPI_Write(testBytesArray,12);
+	HAL_SPI_Transmit(&Spi2Handle, (uint8_t*)displayed_values, 12, 1);
+
+		//printf("hi  guys! %d",);
+		//printf("values: %d %d %d %d \n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
+		//printf("disp %f %f %f",displayed_values[0],displayed_values[1],displayed_values[2]);		
+		//SPI_Write((uint8_t*)displayed_values,12);
 }
 
 void SPI_Init(void)
@@ -171,7 +82,7 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite)
 {
 
   /* Send the data that will be written into the device (MSB First) */
-  while(NumByteToWrite >= 0x01)
+  while(NumByteToWrite >= 0)
   {
     SPI_SendByte(*pBuffer);
     NumByteToWrite--;
