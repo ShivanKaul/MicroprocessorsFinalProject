@@ -177,10 +177,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if (GPIO_Pin==GPIO_PIN_0){
 		 osSignalSet (tid_Thread_Accelerometer, data_ready_flag);
 	}if (GPIO_Pin==GPIO_PIN_1){
-		if (!(tim--)){
+		//if (!(tim--)){
 		 test_SPI();
-		 tim = bleh;
-		}
+		 //tim = bleh;
+		//}
 	}
 }
 

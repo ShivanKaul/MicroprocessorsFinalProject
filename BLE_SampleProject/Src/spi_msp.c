@@ -15,7 +15,7 @@ __IO uint32_t  SPITimeout = Disc_SPI_FLAG_TIMEOUT;
 /* Multiple byte read/write command */
 #define MULTIPLEBYTE_CMD           ((uint8_t)0x40)
 /* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
-#define DUMMY_BYTE                 ((uint8_t)0x00)
+#define DUMMY_BYTE                 ((uint8_t)0x0F)
 
 #define SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 #define CS_LOW()       HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_RESET)
@@ -66,7 +66,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
   GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
   GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-  GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
+  GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
   GPIO_InitStructure.Alternate = GPIO_AF5_SPI2;
 
   /* SPI SCK pin configuration */
@@ -87,7 +87,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 	GPIO_InitStructure.Pin   = Disc_SPI_CS_PIN;
   GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStructure.Pull  = GPIO_NOPULL;
-  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
   HAL_GPIO_Init(Disc_SPI_CS_PORT, &GPIO_InitStructure);
 
   /* Deselect : Chip Select high */
@@ -106,15 +106,11 @@ void spiReadFromDiscovery(void){
 	float *b = (float *) a;
 	
 	printf("BEFORE READING: \n");
-	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
-	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
-	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
+	printf("First 4 bytes: %f, %f, %f \n",b[0],b[1],b[2]);
 	
-	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
+	printf("<----------------------SPI CALL -------------------->\n\n");
 	//CS_LOW();
 	SPI_Read(a, 12, 12);
-	//CS_HIGH();
-	//printf("AFTER READING: STATUS = %d \n", readStatus);
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
 	printf("First 4 bytes: %f, %f, %f \n",b[0],b[1],b[2]);
@@ -125,25 +121,26 @@ void spiReadFromDiscovery(void){
 
 void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
-	Dataready_HIGH();
+	
 	Disable_SPI_IRQ();
 	CS_LOW();
-	
-
+	Dataready_HIGH();
+//NumByteToRead+=1;
 
   /* Receive the data that will be read from the device (MSB First) */
-//  while(NumByteToRead > 0x00)
-//  {
-//    /* Send dummy byte (0x00) to generate the SPI clock to LIS3DSH (Slave device) */
-//    *pBuffer = SPI_SendByte(DUMMY_BYTE);
-//    NumByteToRead--;
-//    pBuffer++;
-//  }
-		HAL_SPI_Receive(&DiscoverySpiHandle,pBuffer,NumByteToRead,10);
+  while(NumByteToRead > 0x00)
+  {
+    /* Send dummy byte (0x00) to generate the SPI clock to LIS3DSH (Slave device) */
+    *pBuffer = SPI_SendByte(DUMMY_BYTE);
+    NumByteToRead--;
+    pBuffer++;
+  }
+	Dataready_LOW();
+		//HAL_SPI_Receive(&DiscoverySpiHandle,pBuffer,NumByteToRead,10);
   /* Set chip select High at the end of the transmission */
   CS_HIGH();
 	Enable_SPI_IRQ();
-	Dataready_LOW();
+	;
 }
 
 

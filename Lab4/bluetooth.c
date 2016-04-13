@@ -39,11 +39,15 @@ static uint8_t SPI_SendByte(uint8_t byte);
 void SPI_Init(void);
 
 
-uint8_t testBytesArray[12];
+uint8_t* testBytesArray;
 extern float displayed_values[]; 
 void test_SPI(void){//(uint8_t*)displayed_values;//
-		
-	HAL_SPI_Transmit(&Spi2Handle, (uint8_t*)displayed_values, 12, 1);
+	int last_rec;
+		testBytesArray=(uint8_t*)displayed_values;
+	
+	HAL_SPI_Transmit(&Spi2Handle,testBytesArray , 12, 1);
+	//last_rec = Spi2Handle.Instance->DR;
+	printf("last byte sent %d last byte received %d\n",testBytesArray[11],last_rec);
 
 		//printf("hi  guys! %d",);
 		//printf("values: %d %d %d %d \n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3]);
@@ -84,32 +88,13 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite)
   /* Send the data that will be written into the device (MSB First) */
   while(NumByteToWrite >= 0)
   {
-    SPI_SendByte(*pBuffer);
+    printf("receibing %d\n",SPI_SendByte(*pBuffer));
     NumByteToWrite--;
     pBuffer++;
   }
 
   /* Set chip select High at the end of the transmission */
 }
-
-void SPI_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
-{
-
-  /* Send the Address of the indexed register */
-  SPI_SendByte(ReadAddr);
-
-  /* Receive the data that will be read from the device (MSB First) */
-  while(NumByteToRead > 0x00)
-  {
-    /* Send dummy byte (0x00) to generate the SPI clock to LIS3DSH (Slave device) */
-    *pBuffer = SPI_SendByte(DUMMY_BYTE);
-    NumByteToRead--;
-    pBuffer++;
-  }
-
-
-}
-
 
 
 /**
@@ -129,14 +114,10 @@ static uint8_t SPI_SendByte(uint8_t byte)
 
   /* Send a Byte through the SPI peripheral */
   Spi2Handle.Instance->DR = byte;
+SPITimeout=10;
 
-  /* Wait to receive a Byte */
-  SPITimeout = SPI_FLAG_TIMEOUT;
-  while (__HAL_SPI_GET_FLAG(&Spi2Handle, SPI_FLAG_RXNE) == RESET)
+  while ((SPITimeout--) == 0)
   {
-    if((SPITimeout--) == 0) {
-			return 0; // Timeout
-		}
   }
 
   /* Return the Byte read from the SPI bus */ 
