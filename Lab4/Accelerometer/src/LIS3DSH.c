@@ -514,6 +514,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 
 			GPIO_InitStructure.Pin = LIS3DSH_SPI_INT2_PIN;
 			HAL_GPIO_Init(LIS3DSH_SPI_INT2_GPIO_PORT, &GPIO_InitStructure);
+			
 	}else if(hspi->Instance == SPI2){
 			GPIO_InitTypeDef GPIO_InitStructure;
 		
@@ -522,13 +523,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 
 			/* Enable SCK, MOSI and MISO GPIO clocks */
 			__GPIOB_CLK_ENABLE();
-
-			/* Enable CS, INT1, INT2  GPIO clock */
-			//__GPIOE_CLK_ENABLE();
-
-			//GPIO_PinAFConfig(LIS3DSH_SPI_SCK_GPIO_PORT, LIS3DSH_SPI_SCK_SOURCE, LIS3DSH_SPI_SCK_AF);
-			//GPIO_PinAFConfig(LIS3DSH_SPI_MISO_GPIO_PORT, LIS3DSH_SPI_MISO_SOURCE, LIS3DSH_SPI_MISO_AF);
-			//GPIO_PinAFConfig(LIS3DSH_SPI_MOSI_GPIO_PORT, LIS3DSH_SPI_MOSI_SOURCE, LIS3DSH_SPI_MOSI_AF);
 
 			GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
 			GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
@@ -541,7 +535,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 			GPIO_InitStructure.Pull  = GPIO_NOPULL;
 			/* SPI  MOSI pin configuration */
 			GPIO_InitStructure.Pin =  SPI2_MOSI_PIN;
-			HAL_GPIO_Init(LIS3DSH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
+			HAL_GPIO_Init(SPI2_MOSI_GPIO_PORT, &GPIO_InitStructure);
 
 			/* SPI MISO pin configuration */
 			GPIO_InitStructure.Pin = SPI2_MISO_PIN;
@@ -556,15 +550,42 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi){
 			/* Deselect : Chip Select high */
 			HAL_GPIO_WritePin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN, GPIO_PIN_SET);
 
-			/* Configure GPIO PINs to detect Interrupts */
-			GPIO_InitStructure.Pin   = SPI2_IRQ_PIN;
-			GPIO_InitStructure.Mode  = GPIO_MODE_IT_RISING;
-			GPIO_InitStructure.Pull  = GPIO_NOPULL;
-			GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
-			HAL_GPIO_Init(SPI2_IRQ_PORT, &GPIO_InitStructure);
+	}else if(hspi->Instance == SPI3){
+			GPIO_InitTypeDef GPIO_InitStructure;
+		
+			/* Enable the SPI periph */
+			__SPI3_CLK_ENABLE();
 
-			//GPIO_InitStructure.Pin = LIS3DSH_SPI_INT2_PIN;
-			//HAL_GPIO_Init(LIS3DSH_SPI_INT2_GPIO_PORT, &GPIO_InitStructure);
+			/* Enable SCK, MOSI and MISO GPIO clocks */
+			__GPIOC_CLK_ENABLE();
+
+
+			GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
+			GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
+			GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
+			GPIO_InitStructure.Alternate = GPIO_AF6_SPI3; //SPI2_SCK_AF
+
+			/* SPI SCK pin configuration */
+			GPIO_InitStructure.Pin = SPI3_SCK_PIN;
+			HAL_GPIO_Init(SPI3_SCK_GPIO_PORT, &GPIO_InitStructure);
+		
+			GPIO_InitStructure.Pull  = GPIO_NOPULL;
+			/* SPI  MOSI pin configuration */
+			GPIO_InitStructure.Pin =  SPI3_MOSI_PIN;
+			HAL_GPIO_Init(SPI3_MOSI_GPIO_PORT, &GPIO_InitStructure);
+
+			/* SPI MISO pin configuration */
+			GPIO_InitStructure.Pin = SPI3_MISO_PIN;
+			HAL_GPIO_Init(SPI3_MISO_GPIO_PORT, &GPIO_InitStructure);
+			
+			GPIO_InitStructure.Pin   = SPI3_CS_PIN;
+			GPIO_InitStructure.Mode  = GPIO_MODE_INPUT;
+			GPIO_InitStructure.Pull  = GPIO_PULLUP;
+			GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
+			HAL_GPIO_Init(SPI3_CS_GPIO_PORT, &GPIO_InitStructure);
+
+			/* Deselect : Chip Select high */
+			HAL_GPIO_WritePin(SPI3_CS_GPIO_PORT, SPI3_CS_PIN, GPIO_PIN_SET);
 	}
 }
 

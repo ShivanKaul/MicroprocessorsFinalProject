@@ -109,6 +109,7 @@ void spiReadFromDiscovery(void){
 	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
 	CS_LOW();
 	SPI_Read(a, 16, 16);
+	//HAL_SPI_Transmit(&DiscoverySpiHandle,b,1,1000);
 	CS_HIGH();
 	//printf("AFTER READING: STATUS = %d \n", readStatus);
 	//printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);

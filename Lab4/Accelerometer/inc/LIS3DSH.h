@@ -144,50 +144,37 @@ typedef struct
 
 #define SPI2_SCK_PIN               GPIO_PIN_13                  /* PB.13 */
 #define SPI2_SCK_GPIO_PORT         GPIOB                       /* GPIOB */
-#define SPI2_SCK_GPIO_CLK          RCC_AHB1Periph_GPIOB
-#define SPI2_SCK_SOURCE            GPIO_PinSource13
 #define SPI2_SCK_AF                GPIO_AF5_SPI2
 
 #define SPI2_MISO_PIN              GPIO_PIN_14                  /* PB.14 */
 #define SPI2_MISO_GPIO_PORT        GPIOB                       /* GPIOA */
-#define SPI2_MISO_GPIO_CLK         RCC_AHB1Periph_GPIOB
-#define SPI2_MISO_SOURCE           GPIO_PinSource14
 #define SPI2_MISO_AF               GPIO_AF5_SPI2
 
 #define SPI2_MOSI_PIN              GPIO_PIN_15                  /* PB.15 */
 #define SPI2_MOSI_GPIO_PORT        GPIOB                       /* GPIOB */
-#define SPI2_MOSI_GPIO_CLK         RCC_AHB1Periph_GPIOB
-#define SPI2_MOSI_SOURCE           GPIO_PinSource15 
 #define SPI2_MOSI_AF               GPIO_AF5_SPI2
 
 #define SPI2_CS_PIN                GPIO_PIN_12                  /* PB.12 */
 #define SPI2_CS_GPIO_PORT          GPIOB                       /* GPIOB */
-#define SPI2_CS_GPIO_CLK           RCC_AHB1Periph_GPIOB
+#define SPI2_CS_AF               GPIO_AF5_SPI2
 
-// IRQ: PB.1
-#define SPI2_IRQ_PIN            GPIO_PIN_1
-#define SPI2_IRQ_MODE           GPIO_MODE_IT_RISING
-#define SPI2_IRQ_PULL           GPIO_NOPULL
-#define SPI2_IRQ_SPEED          GPIO_SPEED_HIGH
-#define SPI2_IRQ_ALTERNATE      1
-#define SPI2_IRQ_PORT           GPIOB
-#define SPI2_IRQ_CLK_ENABLE()   __GPIOB_CLK_ENABLE()
+#define SPI3_SCK_PIN               GPIO_PIN_10                  /* PA.10 */
+#define SPI3_SCK_GPIO_PORT         GPIOC                       /* GPIOC */
+#define SPI3_SCK_AF                GPIO_AF6_SPI3
 
-// EXTI External Interrupt for SPI
-// NOTE: if you change the IRQ pin remember to implement a corresponding handler
-// function like EXTI0_IRQHandler() in the user project
-#define SPI2_EXTI_IRQn          EXTI1_IRQn
-#define SPI2_EXTI_IRQHandler    EXTI1_IRQHandler
-#define SPI2_EXTI_PIN           SPI2_IRQ_PIN
-#define SPI2_EXTI_PORT          SPI2_IRQ_PORT
+#define SPI3_MISO_PIN              GPIO_PIN_11                  /* PC.11 */
+#define SPI3_MISO_GPIO_PORT        GPIOC                       /* GPIOC */
+#define SPI3_MISO_AF               GPIO_AF6_SPI2
 
-#define SPI2_INT2_PIN              GPIO_PIN_1                  /* PE.01 */
-#define SPI2_INT2_GPIO_PORT        GPIOE                       /* GPIOE */
-#define SPI2_INT2_GPIO_CLK         RCC_AHB1Periph_GPIOE
-#define SPI2_INT2_EXTI_LINE        EXTI_Line1
-#define SPI2_INT2_EXTI_PORT_SOURCE EXTI_PortSourceGPIOE
-#define SPI2_INT2_EXTI_PIN_SOURCE  EXTI_PinSource1
-#define SPI2_INT2_EXTI_IRQn        EXTI1_IRQn
+#define SPI3_MOSI_PIN              GPIO_PIN_12                  /* PC.12 */
+#define SPI3_MOSI_GPIO_PORT        GPIOC                       /* GPIOC */
+#define SPI3_MOSI_AF               GPIO_AF6_SPI3
+
+#define SPI3_CS_PIN                GPIO_PIN_15                  /* PA.15 */
+#define SPI3_CS_GPIO_PORT          GPIOA                       /* GPIOA */
+#define SPI3_CS_AF               GPIO_AF6_SPI3
+
+
 
 
 /******************************************************************************/
