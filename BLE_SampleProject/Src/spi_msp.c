@@ -13,13 +13,11 @@ __IO uint32_t  SPITimeout = Disc_SPI_FLAG_TIMEOUT;
 
 
 /* Dummy Byte Send by the SPI Master device in order to generate the Clock to the Slave device */
-#define DUMMY_BYTE                 ((uint8_t)0xFF)
+#define DUMMY_BYTE                 ((uint8_t)0x63)
 
 #define SPI_FLAG_TIMEOUT         ((uint32_t)0x1000)
 #define CS_LOW()       HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_RESET)
 #define CS_HIGH()      HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET)
-#define Dataready_LOW()       HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET)
-#define Dataready_HIGH()      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET)
 
 SPI_HandleTypeDef    DiscoverySpiHandle;
 uint8_t SPI_SendByte(uint8_t byte);
@@ -38,7 +36,7 @@ void Disc_SPI_Init(void)
   DiscoverySpiHandle.Instance 							  = Disc_SPI_INSTANCE;
   DiscoverySpiHandle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_256;
   DiscoverySpiHandle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  DiscoverySpiHandle.Init.CLKPhase 						= SPI_PHASE_1EDGE;
+  DiscoverySpiHandle.Init.CLKPhase 						= SPI_PHASE_2EDGE;
   DiscoverySpiHandle.Init.CLKPolarity 				= SPI_POLARITY_HIGH;
   DiscoverySpiHandle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
   DiscoverySpiHandle.Init.CRCPolynomial 			= 7;
@@ -64,7 +62,7 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 
   GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
   GPIO_InitStructure.Pull  = GPIO_PULLDOWN;
-  GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
+  GPIO_InitStructure.Speed = GPIO_SPEED_LOW;
   GPIO_InitStructure.Alternate = GPIO_AF5_SPI2;
 
   /* SPI SCK pin configuration */
@@ -85,24 +83,21 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 	GPIO_InitStructure.Pin   = Disc_SPI_CS_PIN;
   GPIO_InitStructure.Mode  = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStructure.Pull  = GPIO_NOPULL;
-  GPIO_InitStructure.Speed = GPIO_SPEED_MEDIUM;
+  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(Disc_SPI_CS_PORT, &GPIO_InitStructure);
 
   /* Deselect : Chip Select high */
   HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET);
 
 //  /* Configure GPIO PINs to detect Interrupts */
-  GPIO_InitStructure.Pin   = GPIO_PIN_1;
+//  GPIO_InitStructure.Pin   = Disc_SPI_INT1_PIN;
 //  GPIO_InitStructure.Mode  = GPIO_MODE_IT_FALLING;
-GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
-GPIO_InitStructure.Mode =GPIO_MODE_OUTPUT_PP;
-GPIO_InitStructure.Pull =GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
-	Dataready_LOW();
+//  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
+//  HAL_GPIO_Init(Disc_SPI_INT1_GPIO_PORT, &GPIO_InitStructure);
 }
 
 void spiReadFromDiscovery(void){
-	uint8_t a[12],b[]={63,15,101},z;
+	uint8_t a[16],b[]={63,15,101};
 	
 //	printf("BEFORE READING: \n");
 //	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
@@ -111,20 +106,12 @@ void spiReadFromDiscovery(void){
 //	
 	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
 	CS_LOW();
-	Disable_SPI_IRQ();
-	
-	SPI_Read(a, 12, 12);
-	Dataready_HIGH();
-	HAL_SPI_Transmit(&DiscoverySpiHandle,b,1,1000);
-	Dataready_LOW();
-	Enable_SPI_IRQ();
-	
-	
+	SPI_Read(a, 16, 12);
 	CS_HIGH();
 	//printf("AFTER READING: STATUS = %d \n", readStatus);
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
-	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
+	printf("Third 4 bytes: %d, %d, %d, %d %d\n",a[8],a[9],a[10],a[11]);
 }
 
 void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
@@ -141,7 +128,7 @@ void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
   /* Send the data that will be written into the device (MSB First) */
   while(NumByteToWrite >= 0x01)
   {
-    SPI_SendByte(0Xff);
+    SPI_SendByte(*pBuffer);
     NumByteToWrite--;
     pBuffer++;
   }

@@ -155,25 +155,14 @@ void EXTI0_IRQHandler(void){
  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
 
-void EXTI1_IRQHandler(void){
- HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_1);
-}
-void disable_all_irq();
-void enable_all_irq();
 /**
   * @brief  This function handles accelerometer interrupt
   * @param  uint16_t GPIO_Pin
   * @retval None
   */
-extern SPI_HandleTypeDef    Spi2Handle;
-extern uint8_t empty[];
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if (GPIO_Pin==GPIO_PIN_0){
 		 osSignalSet (tid_Thread_Accelerometer, data_ready_flag);
-	}if (GPIO_Pin==GPIO_PIN_1){
-		disable_all_irq();
-		printf("stat %d %d\n",HAL_SPI_Receive(&Spi2Handle,empty,1,10),empty[0]);
-		enable_all_irq();
 	}
 }
 
