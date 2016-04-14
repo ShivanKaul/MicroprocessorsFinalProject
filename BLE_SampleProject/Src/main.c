@@ -83,6 +83,7 @@
 extern volatile uint8_t set_connectable;
 extern volatile int connected;
 extern Acc_t acc_data;
+extern short pitch, roll;
 uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB04A1 is used */
 /**
  * @}
@@ -92,7 +93,7 @@ uint8_t bnrg_expansion_board = IDB04A1; /* at startup, suppose the X-NUCLEO-IDB0
  * @{
  */
 /* Private function prototypes -----------------------------------------------*/
-void User_Process(Acc_t* p_axes);
+void User_Process(short, short);
 /**
  * @}
  */
@@ -123,6 +124,7 @@ void User_Process(Acc_t* p_axes);
  tClockTime last_time;
 int main(void)
 {
+
   const char *name = "BlueG07";
   uint8_t SERVER_BDADDR[] = {0x07, 0x34, 0x00, 0xE1, 0x80, 0x03};
   uint8_t bdaddr[BDADDR_SIZE];
@@ -285,7 +287,7 @@ int main(void)
 			last_time = Clock_Time();
 		}
     HCI_Process();
-    User_Process(&acc_data);
+    User_Process(pitch, roll);
   }
 }
 
@@ -296,7 +298,7 @@ int main(void)
  * @param  Acc_t* p_axes
  * @retval None
  */
-void User_Process(Acc_t* p_axes)
+void User_Process(short pitch, short roll)
 {
   if(set_connectable){
     setConnectable();
@@ -312,8 +314,8 @@ void User_Process(Acc_t* p_axes)
     
     if(connected)
     {
-      PRINTF("User pressed button! ACC: X=%6d Y=%6d\n", p_axes->ROLL, p_axes->PITCH);
-      Acc_Update(p_axes);
+      PRINTF("User pressed button! ACC: X=%6d Y=%6d\n", pitch, roll);
+      Acc_Update(pitch, roll);
     }
   }
 }

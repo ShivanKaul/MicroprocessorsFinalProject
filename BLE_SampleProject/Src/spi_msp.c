@@ -19,6 +19,7 @@ __IO uint32_t  SPITimeout = Disc_SPI_FLAG_TIMEOUT;
 #define CS_LOW()       HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_RESET)
 #define CS_HIGH()      HAL_GPIO_WritePin(Disc_SPI_CS_PORT, Disc_SPI_CS_PIN, GPIO_PIN_SET)
 
+short pitch, roll, temp, doubleTap;
 SPI_HandleTypeDef    DiscoverySpiHandle;
 uint8_t SPI_SendByte(uint8_t byte);
 void SPI_SendData(SPI_HandleTypeDef *hspi, uint16_t Data);
@@ -96,10 +97,12 @@ void Discovery_MSP_init(SPI_HandleTypeDef *hspi){
 //  HAL_GPIO_Init(Disc_SPI_INT1_GPIO_PORT, &GPIO_InitStructure);
 }
 
+
 void spiReadFromDiscovery(void){
 	uint32_t *c;
-	uint8_t a[16],b[]={63,15,101};
-	c= (uint32_t*)a;
+	uint8_t a[16];
+	
+	c = (uint32_t*)a;
 	
 //	printf("BEFORE READING: \n");
 //	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
@@ -116,6 +119,12 @@ void spiReadFromDiscovery(void){
 	//printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
 	//printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
 	//printf("Fourth 4 bytes: %d, %d, %d, %d \n",a[12],a[13],a[14],a[15]);
+	
+	roll = c[0];
+	pitch = c[1];
+	temp = c[2];
+	doubleTap = c[3];
+	
 	printf("Results: %d, %d, %d, %d \n",c[0],c[1],c[2],c[3]);
 }
 

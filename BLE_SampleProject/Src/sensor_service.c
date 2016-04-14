@@ -56,10 +56,11 @@ volatile int connected = FALSE;
 volatile uint8_t set_connectable = 1;
 volatile uint16_t connection_handle = 0;
 volatile uint8_t notification_enabled = FALSE;
-volatile Acc_t acc_data = {18000, 18000};
 uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
 uint16_t accServHandle, freeFallCharHandle, accCharHandle;
 uint16_t envSensServHandle, tempCharHandle, pressCharHandle, humidityCharHandle;
+
+extern short pitch, roll, temp, doubleTap;
 
 #if NEW_SERVICES
   uint16_t timeServHandle, secondsCharHandle, minuteCharHandle;
@@ -197,13 +198,13 @@ tBleStatus Free_Fall_Notify(void)
  * @param  Structure containing acceleration value in mg
  * @retval Status
  */
-tBleStatus Acc_Update(Acc_t *data)
+tBleStatus Acc_Update(short pitch, short roll)
 {  
   tBleStatus ret;    
   uint8_t buff[4];
     
-  STORE_LE_16(buff,data->ROLL++);
-  STORE_LE_16(buff+2,data->PITCH++);
+  STORE_LE_16(buff,roll);
+  STORE_LE_16(buff+2,pitch);
 	
   ret = aci_gatt_update_char_value(accServHandle, accCharHandle, 0, 4, buff);
 	
@@ -235,100 +236,21 @@ tBleStatus Add_Environmental_Sensor_Service(void)
   
   /* Temperature Characteristic */
   COPY_TEMP_CHAR_UUID(uuid);  
-  ret =  aci_gatt_add_char(envSensServHandle, UUID_TYPE_128, uuid, 2,
-                           CHAR_PROP_READ, ATTR_PERMISSION_NONE,
+//  ret =  aci_gatt_add_char(envSensServHandle, UUID_TYPE_128, uuid, 2,
+//                           CHAR_PROP_READ, ATTR_PERMISSION_NONE,
+//                           GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
+//                           16, 0, &tempCharHandle);
+	
+	ret =  aci_gatt_add_char(envSensServHandle, UUID_TYPE_128, uuid, 2,
+                           CHAR_PROP_NOTIFY|CHAR_PROP_READ,
+                           ATTR_PERMISSION_NONE,
                            GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
                            16, 0, &tempCharHandle);
+													 
   if (ret != BLE_STATUS_SUCCESS) goto fail;
   
-  charFormat.format = FORMAT_SINT16;
-  charFormat.exp = -1;
-  charFormat.unit = UNIT_TEMP_CELSIUS;
-  charFormat.name_space = 0;
-  charFormat.desc = 0;
   
-  uuid16 = CHAR_FORMAT_DESC_UUID;
-  
-  ret = aci_gatt_add_char_desc(envSensServHandle,
-                               tempCharHandle,
-                               UUID_TYPE_16,
-                               (uint8_t *)&uuid16, 
-                               7,
-                               7,
-                               (void *)&charFormat, 
-                               ATTR_PERMISSION_NONE,
-                               ATTR_ACCESS_READ_ONLY,
-                               0,
-                               16,
-                               FALSE,
-                               &descHandle);
-  if (ret != BLE_STATUS_SUCCESS) goto fail;
-  
-  /* Pressure Characteristic */
-  if(1){ //FIXME
-    COPY_PRESS_CHAR_UUID(uuid);  
-    ret =  aci_gatt_add_char(envSensServHandle, UUID_TYPE_128, uuid, 3,
-                             CHAR_PROP_READ, ATTR_PERMISSION_NONE,
-                             GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
-                             16, 0, &pressCharHandle);
-    if (ret != BLE_STATUS_SUCCESS) goto fail;
-    
-    charFormat.format = FORMAT_SINT24;
-    charFormat.exp = -5;
-    charFormat.unit = UNIT_PRESSURE_BAR;
-    charFormat.name_space = 0;
-    charFormat.desc = 0;
-    
-    uuid16 = CHAR_FORMAT_DESC_UUID;
-    
-    ret = aci_gatt_add_char_desc(envSensServHandle,
-                                 pressCharHandle,
-                                 UUID_TYPE_16,
-                                 (uint8_t *)&uuid16, 
-                                 7,
-                                 7,
-                                 (void *)&charFormat, 
-                                 ATTR_PERMISSION_NONE,
-                                 ATTR_ACCESS_READ_ONLY,
-                                 0,
-                                 16,
-                                 FALSE,
-                                 &descHandle);
-    if (ret != BLE_STATUS_SUCCESS) goto fail;
-  }    
-  /* Humidity Characteristic */
-  if(1){   //FIXME
-    COPY_HUMIDITY_CHAR_UUID(uuid);  
-    ret =  aci_gatt_add_char(envSensServHandle, UUID_TYPE_128, uuid, 2,
-                             CHAR_PROP_READ, ATTR_PERMISSION_NONE,
-                             GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
-                             16, 0, &humidityCharHandle);
-    if (ret != BLE_STATUS_SUCCESS) goto fail;
-    
-    charFormat.format = FORMAT_UINT16;
-    charFormat.exp = -1;
-    charFormat.unit = UNIT_UNITLESS;
-    charFormat.name_space = 0;
-    charFormat.desc = 0;
-    
-    uuid16 = CHAR_FORMAT_DESC_UUID;
-    
-    ret = aci_gatt_add_char_desc(envSensServHandle,
-                                 humidityCharHandle,
-                                 UUID_TYPE_16,
-                                 (uint8_t *)&uuid16, 
-                                 7,
-                                 7,
-                                 (void *)&charFormat, 
-                                 ATTR_PERMISSION_NONE,
-                                 ATTR_ACCESS_READ_ONLY,
-                                 0,
-                                 16,
-                                 FALSE,
-                                 &descHandle);
-    if (ret != BLE_STATUS_SUCCESS) goto fail;
-  } 
-  PRINTF("Service ENV_SENS added. Handle 0x%04X, TEMP Charac handle: 0x%04X, PRESS Charac handle: 0x%04X, HUMID Charac handle: 0x%04X\n",envSensServHandle, tempCharHandle, pressCharHandle, humidityCharHandle);	
+  PRINTF("Service ENV_SENS added. Handle 0x%04X, TEMP Charac handle: 0x%04X\n",envSensServHandle, tempCharHandle);	
   return BLE_STATUS_SUCCESS; 
   
 fail:
@@ -474,16 +396,16 @@ void GAP_DisconnectionComplete_CB(void)
 void Read_Request_CB(uint16_t handle)
 {  
   if(handle == accCharHandle + 1){
-    Acc_Update((Acc_t*)&acc_data);
+		printf("pitch being sent %i, roll being sent %i\n", pitch, roll);
+    Acc_Update(pitch, roll);
   }  
-  else if(handle == tempCharHandle + 1){
-    int16_t data;
-    data = 210 + ((uint64_t)rand()*15)/RAND_MAX; //sensor emulation        
-    Acc_Update((Acc_t*)&acc_data); //FIXME: to overcome issue on Android App
+  else if(handle == tempCharHandle + 1){     
+    Acc_Update(pitch, roll); //FIXME: to overcome issue on Android App
                                         // If the user button is not pressed within
                                         // a short time after the connection,
                                         // a pop-up reports a "No valid characteristics found" error.
-    Temp_Update(data);
+		printf("temp being sent %i\n",temp);
+    Temp_Update(temp);
   }
   else if(handle == pressCharHandle + 1){
     int32_t data;
@@ -772,15 +694,6 @@ fail:
  */
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
-	// 2 bytes being sent over Bluetooth
-	// 1st:
-	/**
-         * 00 -> off
-         * 01 -> clockwise
-         * 10 -> anti
-         * 11 -> all on
-         */
-         // 2nd: PWM signal (0 -> 10). Note: if 1st byte is not 3, then PWM is 0.
 	PRINTF("IN ATTRIBUTE MODIFIED CB HANDLE\n");	
 	int count;
 	for (count = 0; count < data_length; count++) {

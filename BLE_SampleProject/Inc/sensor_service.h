@@ -114,7 +114,7 @@ typedef struct {
  *  @{
  */
 tBleStatus Add_Acc_Service(void);
-tBleStatus Acc_Update(Acc_t *data);
+tBleStatus Acc_Update(short, short);
 tBleStatus Add_Environmental_Sensor_Service(void);
 void       setConnectable(void);
 void       enableNotification(void);
