@@ -772,6 +772,15 @@ fail:
  */
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
+	// 2 bytes being sent over Bluetooth
+	// 1st:
+	/**
+         * 00 -> off
+         * 01 -> clockwise
+         * 10 -> anti
+         * 11 -> all on
+         */
+         // 2nd: PWM signal (0 -> 10). Note: if 1st byte is not 3, then PWM is 0.
 	PRINTF("IN ATTRIBUTE MODIFIED CB HANDLE\n");	
 	int count;
 	for (count = 0; count < data_length; count++) {
