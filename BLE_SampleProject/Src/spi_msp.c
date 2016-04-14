@@ -36,8 +36,8 @@ void Disc_SPI_Init(void)
   DiscoverySpiHandle.Instance 							  = Disc_SPI_INSTANCE;
   DiscoverySpiHandle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_256;
   DiscoverySpiHandle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  DiscoverySpiHandle.Init.CLKPhase 						= SPI_PHASE_2EDGE;
-  DiscoverySpiHandle.Init.CLKPolarity 				= SPI_POLARITY_HIGH;
+  DiscoverySpiHandle.Init.CLKPhase 						= SPI_PHASE_1EDGE;
+  DiscoverySpiHandle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
   DiscoverySpiHandle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
   DiscoverySpiHandle.Init.CRCPolynomial 			= 7;
   DiscoverySpiHandle.Init.DataSize 						= SPI_DATASIZE_8BIT;
@@ -106,12 +106,13 @@ void spiReadFromDiscovery(void){
 //	
 	printf("\n\n<----------------------SPI CALL -------------------->\n\n");
 	CS_LOW();
-	SPI_Read(a, 16, 12);
+	SPI_Read(a, 16, 16);
 	CS_HIGH();
 	//printf("AFTER READING: STATUS = %d \n", readStatus);
 	printf("First 4 bytes: %d, %d, %d, %d \n",a[0],a[1],a[2],a[3]);
 	printf("Second 4 bytes: %d, %d, %d, %d \n",a[4],a[5],a[6],a[7]);
-	printf("Third 4 bytes: %d, %d, %d, %d %d\n",a[8],a[9],a[10],a[11]);
+	printf("Third 4 bytes: %d, %d, %d, %d \n",a[8],a[9],a[10],a[11]);
+	printf("Fourth 4 bytes: %d, %d, %d, %d \n",a[12],a[13],a[14],a[15]);
 }
 
 void SPI_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)

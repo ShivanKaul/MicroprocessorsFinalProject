@@ -69,10 +69,10 @@ void Thread_Bluetooth(void const *argument){
 		// Send accelerometer, temperature
 		// Get angles
 		
-		uint8_t testBytesArray[12] = {15,7,3,1,2,1,1,1,3,1,1,1};
+		uint8_t testBytesArray[16] = {15,7,3,1,2,1,1,1,3,1,1,1,5,4,3,2};
 		//DELAY
 		osDelay(1000);	
-		printf("hi %d ",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 16, 100));
+		printf("hi %d ",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 16, 10000));
 		
 		printf("values: %d %d %d %d, emp:%d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3],empty[0],empty[1],empty[2]);
 		//SPI_Write(testBytesArray,12);
@@ -91,8 +91,8 @@ void SPI_Init(void)
   Spi2Handle.Instance 							  = SPI2;
   Spi2Handle.Init.BaudRatePrescaler 	= SPI_BAUDRATEPRESCALER_256; 
   Spi2Handle.Init.Direction 					= SPI_DIRECTION_2LINES;
-  Spi2Handle.Init.CLKPhase 						= SPI_PHASE_2EDGE;
-  Spi2Handle.Init.CLKPolarity 				= SPI_POLARITY_HIGH;
+  Spi2Handle.Init.CLKPhase 						= SPI_PHASE_1EDGE;
+  Spi2Handle.Init.CLKPolarity 				= SPI_POLARITY_LOW;
   Spi2Handle.Init.CRCCalculation			= SPI_CRCCALCULATION_DISABLED;
   Spi2Handle.Init.CRCPolynomial 			= 7;
   Spi2Handle.Init.DataSize 						= SPI_DATASIZE_8BIT;
