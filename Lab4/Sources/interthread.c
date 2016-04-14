@@ -48,14 +48,14 @@ float setAcceleration(float* newValues, int double_tap){
 	return 0;
 }
 uint32_t bluetooth_data[4];
-uint8_t* getBluetooth(){
+uint32_t* getBluetooth(){
 	osMutexWait(disp_mutex,osWaitForever); 
 	bluetooth_data[0]=(int)(displayed_values[0]*100);
 	bluetooth_data[1]=(int)(displayed_values[1]*100);
 	bluetooth_data[2]=(int)(displayed_values[2]*100);
 	bluetooth_data[3]=double_tap_signal ;
 	osMutexRelease(disp_mutex); 
-	return (uint8_t*)bluetooth_data;
+	return bluetooth_data;
 }
 
 

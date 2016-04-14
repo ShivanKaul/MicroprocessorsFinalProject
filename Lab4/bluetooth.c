@@ -62,19 +62,27 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
   * @retval None
   */
 uint8_t empty[3];
+int data_sent=1, exit_code;
 void Thread_Bluetooth(void const *argument){
 	while(1){
 		 // 1 ms 
 		// Talk to SPI
 		// Send accelerometer, temperature
 		// Get angles
-		
-		uint8_t testBytesArray[16] = {15,7,3,1,2,1,1,1,3,1,1,1,5,4,3,2};
+		uint8_t* testBytesArray;
+		osDelay(1000);
+		if(data_sent){
+		testBytesArray = (uint8_t*) getBluetooth(); //{15,7,3,1,2,1,1,1,3,1,1,1,5,4,3,2};
+			data_sent=0;
+		}
 		//DELAY
-		osDelay(1000);	
-		printf("hi %d ",HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 16, 10000));
+		exit_code=HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 16, 10000);
+		if(exit_code==0){
+			data_sent=1;
+		}
+		printf("hi %d ",exit_code);
 		
-		printf("values: %d %d %d %d, emp:%d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3],empty[0],empty[1],empty[2]);
+		printf("values: %d %d %d %d, %d %d %d\n", testBytesArray[0],testBytesArray[1],testBytesArray[2],testBytesArray[3],testBytesArray[4],testBytesArray[5],testBytesArray[6]);
 		//SPI_Write(testBytesArray,12);
 		
 		
