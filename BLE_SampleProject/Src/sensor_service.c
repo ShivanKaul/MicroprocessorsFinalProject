@@ -772,6 +772,13 @@ fail:
  */
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
+	PRINTF("IN ATTRIBUTE MODIFIED CB HANDLE\n");	
+	int count;
+	for (count = 0; count < data_length; count++) {
+		PRINTF("DATA: %X\n", att_data[count]);
+	}
+	
+	
   /* If GATT client has modified 'LED button characteristic' value, toggle LED2 */
   if(handle == ledButtonCharHandle + 1){      
       BSP_LED_Toggle(LED2);

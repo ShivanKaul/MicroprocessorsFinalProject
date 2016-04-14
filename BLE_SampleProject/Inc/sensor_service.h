@@ -89,7 +89,7 @@
  *        2. LED Button Service with one characteristic
  *           - LED characteristic (Readable and Writable)
  */
-#define NEW_SERVICES 0
+#define NEW_SERVICES 1
 /**
  * @}
  */
