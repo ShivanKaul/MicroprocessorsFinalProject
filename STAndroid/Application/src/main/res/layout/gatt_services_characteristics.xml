@@ -114,7 +114,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Temperature:"
+                android:text="Temperature (in ° C):"
                 android:textSize="18sp"
                 android:id="@+id/temp_string" />
 
@@ -135,7 +135,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Accelerometer: Pitch:"
+                android:text="Pitch (in degrees):"
                 android:textSize="18sp"
                 android:id="@+id/textView2" />
 
@@ -146,6 +146,7 @@
                 android:id="@+id/pitch_val"
                 android:layout_gravity="right"
                 android:layout_column="38" />
+
         </TableRow>
 
         <TableRow
@@ -154,7 +155,7 @@
 
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:text="Accelerometer: Roll:"
+                      android:text="Roll (in degrees):"
                       android:textSize="18sp"
                 android:id="@+id/roll_string" />
 
@@ -240,5 +241,15 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/linearLayout2" />
+
+    <TextView
+        style="@android:style/TextAppearance.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Values to board:"
+        android:id="@+id/textView"
+        android:layout_above="@+id/enable_led"
+        android:layout_alignStart="@+id/linearLayout2" />
 
 </RelativeLayout>

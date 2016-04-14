@@ -30,7 +30,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -46,15 +49,16 @@ import java.util.UUID;
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
+
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    private int mConnectionState = STATE_DISCONNECTED;
+    protected int mConnectionState = STATE_DISCONNECTED;
 
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
+    protected static final int STATE_DISCONNECTED = 0;
+    protected static final int STATE_CONNECTING = 1;
+    protected static final int STATE_CONNECTED = 2;
 
     public final static String ACTION_GATT_CONNECTED =
             "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
@@ -64,15 +68,19 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String ACC_DATA =
+            "com.example.bluetooth.le.ACC_DATA";
+    public final static String TEMP_DATA =
+            "com.example.bluetooth.le.TEMP_DATA";
+    public final static String TURN_ON =
+            "com.example.bluetooth.le.TURN_ON";
 
     public final static UUID UUID_ACC_MEASUREMENT =
             UUID.fromString(GattAttributes.ACC_UUID_STRING);
     public final static UUID UUID_TEMP_MEASUREMENT =
             UUID.fromString(GattAttributes.TEMP_UUID_STRING);
     public final static UUID UUID_DOUBLE_TAP =
-            UUID.fromString(GattAttributes.ACC_UUID_STRING);
+            UUID.fromString(GattAttributes.DOUBLE_TAP_UUID_STRING);
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -128,8 +136,6 @@ public class BluetoothLeService extends Service {
             }
         }
 
-
-
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
@@ -143,12 +149,10 @@ public class BluetoothLeService extends Service {
     }
 
     private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
+                                 final BluetoothGattCharacteristic characteristic)  {
         final Intent intent = new Intent(action);
 
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-        // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
+        System.out.println("HEY WE RECEIVED A NOTIFICATION FOR " + GattAttributes.lookup(characteristic.getUuid().toString(), "nope"));
 
          if (UUID_ACC_MEASUREMENT.equals(characteristic.getUuid())) {
             // If acceleration
@@ -179,7 +183,7 @@ public class BluetoothLeService extends Service {
                 String movData = String.valueOf(roll) +
                         "," + String.valueOf(pitch);
                 System.out.println("Mov data is " + movData);
-                intent.putExtra(EXTRA_DATA, movData);
+                intent.putExtra(ACC_DATA, movData);
             }
         } else if (UUID_TEMP_MEASUREMENT.equals(characteristic.getUuid())) {
              // temp data
@@ -205,8 +209,11 @@ public class BluetoothLeService extends Service {
                  float temp = bb.getShort() / 100.0f;
                  String tempData = String.valueOf(temp);
                  System.out.println("Temperature is " + tempData);
-                 intent.putExtra(EXTRA_DATA, tempData);
+                 intent.putExtra(TEMP_DATA, tempData);
              }
+         } else if (UUID_DOUBLE_TAP.equals(characteristic.getUuid())) {
+             // if off, then turn on. Else do nothing.
+             intent.putExtra(TURN_ON, "1");
          }
         sendBroadcast(intent);
     }
@@ -216,6 +223,7 @@ public class BluetoothLeService extends Service {
             return BluetoothLeService.this;
         }
     }
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -372,6 +380,14 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
+    }
+
+    public void setNotificationForDoubleTap(BluetoothGattCharacteristic characteristic) {
+        setCharacteristicNotification(characteristic, true);
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        mBluetoothGatt.writeDescriptor(descriptor);
     }
 
     /**

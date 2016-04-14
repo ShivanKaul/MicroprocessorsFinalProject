@@ -36,9 +36,8 @@ public class GattAttributes {
     private static int[] TEMP_UUID = { 0x05,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
     private static int[] ENV_SERVICE_UUID = { 0x04,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
 
-    /************************** RELICS OF A BYGONE ERA ***************************************/
-//    public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
-//    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+    private static int[] DOUBLE_TAP_UUID = { 0x09,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
+    private static int[] DOUBLE_TAP_SERVICE_UUID = { 0x08,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
 
     final static String ACC_SERVICE_UUID_STRING = convertUUIDToString(ACC_SERVICE_UUID);
     final static String ACC_UUID_STRING = convertUUIDToString(ACC_UUID);
@@ -46,25 +45,20 @@ public class GattAttributes {
     final static String LED_UUID_STRING = convertUUIDToString(LED_UUID);
     final static String TEMP_UUID_STRING = convertUUIDToString(TEMP_UUID);
     final static String ENV_SERVICE_UUID_STRING = convertUUIDToString(ENV_SERVICE_UUID);
+    final static String DOUBLE_TAP_UUID_STRING = convertUUIDToString(DOUBLE_TAP_UUID);
+    final static String DOUBLE_TAP_SERVICE_UUID_STRING = convertUUIDToString(DOUBLE_TAP_SERVICE_UUID);
+    final static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
+
 
     static {
-
-
         attributes.put(ACC_SERVICE_UUID_STRING, "Acceleration Service");
         attributes.put(ACC_UUID_STRING, "Acceleration Characteristic");
         attributes.put(TEMP_UUID_STRING, "Temperature Characteristic");
         attributes.put(ENV_SERVICE_UUID_STRING, "Environment Service");
         attributes.put(LED_UUID_STRING, "LED Characteristic");
         attributes.put(LED_SERVICE_UUID_STRING, "LED Service");
-
-        /************************** RELICS OF A BYGONE ERA ***************************************/
-        // Sample Services.
-//        attributes.put("0000180d-0000-1000-8000-00805f9b34fb", "Heart Rate Service");
-//        attributes.put("0000180a-0000-1000-8000-00805f9b34fb", "Device Information Service");
-        // Sample Characteristics.
-//        attributes.put(HEART_RATE_MEASUREMENT, "Heart Rate Measurement");
-//        attributes.put("00002a29-0000-1000-8000-00805f9b34fb", "Manufacturer Name String");
-
+        attributes.put(DOUBLE_TAP_SERVICE_UUID_STRING, "Double Tap Service");
+        attributes.put(DOUBLE_TAP_UUID_STRING, "Double Tap Characteristic");
     }
 
     private static String convertUUIDToString(int[] components) {
