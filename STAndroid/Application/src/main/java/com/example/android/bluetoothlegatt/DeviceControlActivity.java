@@ -17,6 +17,7 @@
 package com.example.android.bluetoothlegatt;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
@@ -28,15 +29,23 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.SimpleExpandableListAdapter;
+import android.widget.Switch;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +60,7 @@ import java.util.UUID;
 public class DeviceControlActivity extends Activity {
     int curService = 0, curChar = 0;
 
+    BluetoothGattCharacteristic ledCharacteristic = null;
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
         public void run() {
@@ -62,14 +72,31 @@ public class DeviceControlActivity extends Activity {
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
+
+    // LED Options UI
+    // UI elements
+    private Switch enableLED;
+    private RadioGroup radioButtons;
+    private RadioButton allOn;
+    private RadioButton clockwise;
+    private SeekBar seekBar;
+    private TextView brightness_text;
+
+    private TableLayout table;
+
+
     private TextView mConnectionState;
     private TextView mDataField;
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
     private BluetoothLeService mBluetoothLeService;
+    private BluetoothGatt mBluetoothGatt;
+
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+//    private ArrayList<BluetoothGattCharacteristic> mGattWriteCharas =
+//            new ArrayList<BluetoothGattCharacteristic>();
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
 
@@ -107,7 +134,6 @@ public class DeviceControlActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            System.out.println("DEBUG: IN DEVICE CONTROL: WE RECEIVED SOMETHING FROM BT:  " + action);
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 updateConnectionState(R.string.connected);
@@ -144,6 +170,8 @@ public class DeviceControlActivity extends Activity {
     private void clearUI() {
 //        mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
 //        mDataField.setText(R.string.no_data);
+        // Hide all
+        setVisibility(View.INVISIBLE);
     }
 
 
@@ -162,6 +190,105 @@ public class DeviceControlActivity extends Activity {
 //        mGattServicesList.setOnChildClickListener(servicesListClickListner);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
 //        mDataField = (TextView) findViewById(R.id.data_value);
+
+        enableLED = (Switch) findViewById(R.id.enable_led);
+        table = (TableLayout) findViewById(R.id.table);
+        radioButtons = (RadioGroup) findViewById(R.id.radioGroup);
+        allOn = (RadioButton) findViewById(R.id.allOnRadio);
+        clockwise = (RadioButton) findViewById(R.id.rotateClockRadio);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        // Set max value to make Yusaira happy
+        seekBar.setMax(10);
+        brightness_text = (TextView) findViewById(R.id.brightness_string);
+
+        clearUI();
+
+        // Set all off initially
+        for(int i = 0; i < radioButtons.getChildCount(); i++){
+            ((RadioButton)radioButtons.getChildAt(i)).setEnabled(false);
+        }
+        seekBar.setEnabled(false);
+
+        final byte [] possibleValues = {0x0, 0x1, 0x2, 0x3};
+        /**
+         * 00 -> off
+         * 01 -> clockwise
+         * 10 -> anti
+         * 11 -> all on
+         */
+
+        // Handle change in radio buttons
+        radioButtons.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            public void onCheckedChanged(RadioGroup rGroup, int checkedId)
+            {
+                // This will get the radiobutton that has changed in its check state
+                RadioButton checkedRadioButton = (RadioButton)rGroup.findViewById(checkedId);
+                // This puts the value (true/false) into the variable
+                boolean isChecked = checkedRadioButton.isChecked();
+                // If the radiobutton that has changed in check state is now checked...
+                if (isChecked)
+                {
+                    if (checkedRadioButton.equals(allOn)) {
+                        seekBar.setEnabled(true);
+                        // get value from seekbar
+                        byte [] toSend = {possibleValues[3], (byte)seekBar.getProgress()};
+                        ledCharacteristic.setValue(toSend);
+                    } else {
+                        seekBar.setEnabled(false);
+                        if (checkedRadioButton.equals(clockwise)) {
+                            byte [] toSend = {possibleValues[1], 0x0};
+                            ledCharacteristic.setValue(toSend);
+                        } else {
+                            byte [] toSend = {possibleValues[2], 0x0};
+                            ledCharacteristic.setValue(toSend);
+                        }
+                    }
+                }
+                mBluetoothLeService.writeCharacteristic(ledCharacteristic);
+            }
+
+        });
+
+        // Handle change in LED button
+        enableLED.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // do something, the isChecked will be
+                // true if the switch is in the On position
+                for(int i = 0; i < radioButtons.getChildCount(); i++){
+                    ((RadioButton)radioButtons.getChildAt(i)).setEnabled(isChecked);
+                }
+                if (findViewById(radioButtons.getCheckedRadioButtonId()).equals(allOn) && isChecked) {
+                    seekBar.setEnabled(true);
+                    // get value from seekbar
+                    byte [] toSend = {possibleValues[3], (byte)seekBar.getProgress()};
+                    ledCharacteristic.setValue(toSend);
+                } else {
+                    seekBar.setEnabled(false);
+                    byte [] toSend = {possibleValues[0], 0x0};
+                    ledCharacteristic.setValue(toSend);
+                }
+                // we can send data here
+                mBluetoothLeService.writeCharacteristic(ledCharacteristic);
+            }
+        });
+
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                RadioButton checkedRadioButton = (RadioButton)radioButtons
+                        .findViewById(radioButtons.getCheckedRadioButtonId());
+                if (fromUser && checkedRadioButton.equals(allOn)) {
+                    byte [] toSend = {possibleValues[3], (byte)seekBar.getProgress()};
+                    ledCharacteristic.setValue(toSend);
+                }
+                // we can send data here
+                mBluetoothLeService.writeCharacteristic(ledCharacteristic);
+            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        } );
 
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -220,16 +347,6 @@ public class DeviceControlActivity extends Activity {
             case android.R.id.home:
                 onBackPressed();
                 return true;
-            case R.id.menu_led:
-                Intent intent = new Intent(this, LEDOptionsActivity.class);
-                intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-                intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
-//                if (mScanning) {
-//                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
-//                    mScanning = false;
-//                }
-                startActivity(intent);
-                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -238,9 +355,27 @@ public class DeviceControlActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 mConnectionState.setText(resourceId);
+
+                // UI
+                if (resourceId == R.string.connected) {
+                    setVisibility(View.VISIBLE);
+                }
+                else {
+                    setVisibility(View.INVISIBLE);
+                }
+
             }
         });
+    }
+
+    private void setVisibility(final int visibility) {
+        enableLED.setVisibility(visibility);
+        table.setVisibility(visibility);
+        radioButtons.setVisibility(visibility);
+        seekBar.setVisibility(visibility);
+        brightness_text.setVisibility(visibility);
     }
 
     private void displayData(String data) {
@@ -254,6 +389,8 @@ public class DeviceControlActivity extends Activity {
     // on the UI.
     private void displayGattServices(List<BluetoothGattService> gattServices) {
 
+
+        System.out.println("Displaying services!");
         if (gattServices == null) return;
         String uuid = null;
         String unknownServiceString = getResources().getString(R.string.unknown_service);
@@ -272,8 +409,7 @@ public class DeviceControlActivity extends Activity {
             if (serviceString.contains(unknownServiceString)) {
                 continue;
             }
-            currentServiceData.put(
-                    LIST_NAME, serviceString);
+            currentServiceData.put(LIST_NAME, serviceString);
             currentServiceData.put(LIST_UUID, uuid);
             gattServiceData.add(currentServiceData);
 
@@ -292,6 +428,10 @@ public class DeviceControlActivity extends Activity {
                 // If unknown then don't store
                 if (charString.contains(unknownCharaString)) {
                     continue;
+                }
+                if (charString.contains("LED")) {
+                    System.out.println("LED is set");
+                    ledCharacteristic = gattCharacteristic;
                 }
                 charas.add(gattCharacteristic);
                 currentCharaData.put(
@@ -352,4 +492,21 @@ public class DeviceControlActivity extends Activity {
 
         handler.postDelayed(runnable, 1000);
     }
+
+//    public boolean writeCharacteristic(int toWrite) {
+//        final BluetoothGattCharacteristic characteristic =
+//                mGattWriteCharas.get(toWrite);
+//        final int charaProp = characteristic.getProperties();
+//        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
+////            byte[] value = {0x11, 0x64};
+//            // define ^ this value in characteristic in mgattwritecahras
+//            if (mNotifyCharacteristic != null) {
+//                mBluetoothLeService.setCharacteristicNotification(
+//                        mNotifyCharacteristic, false);
+//                mNotifyCharacteristic = null;
+//            }
+//            mBluetoothGatt.writeCharacteristic(characteristic);
+//        }
+//        return true;
+//    }
 }

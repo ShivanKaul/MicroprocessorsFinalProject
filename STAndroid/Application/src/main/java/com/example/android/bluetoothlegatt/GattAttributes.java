@@ -30,6 +30,8 @@ public class GattAttributes {
     private static int[] ACC_SERVICE_UUID = { 0x02,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
     private static int[] ACC_UUID = { 0x34,0x0a,0x1b,0x80, 0xcf,0x4b, 0x11,0xe1, 0xac,0x36, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
     private static int[] ACC_TEMP_UUID = { 0xa3,0x2e,0x55,0x20, 0xe4,0x77, 0x11,0xe2, 0xa9,0xe3, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
+    private static int[] LED_SERVICE_UUID = { 0x0b,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
+    private static int[] LED_UUID = { 0x0c,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
 
     /************************** RELICS OF A BYGONE ERA ***************************************/
 //    public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
@@ -38,6 +40,8 @@ public class GattAttributes {
     final static String ACC_SERVICE_UUID_STRING = convertUUIDToString(ACC_SERVICE_UUID);
     final static String ACC_UUID_STRING = convertUUIDToString(ACC_UUID);
     final static String ACC_TEMP_UUID_STRING = convertUUIDToString(ACC_TEMP_UUID);
+    final static String LED_SERVICE_UUID_STRING = convertUUIDToString(LED_SERVICE_UUID);
+    final static String LED_UUID_STRING = convertUUIDToString(LED_UUID);
 
     static {
 
@@ -45,6 +49,8 @@ public class GattAttributes {
         attributes.put(ACC_SERVICE_UUID_STRING, "Acceleration Service");
         attributes.put(ACC_UUID_STRING, "Acceleration Characteristic");
         attributes.put(ACC_TEMP_UUID_STRING, "Temperature Characteristic");
+        attributes.put(LED_UUID_STRING, "LED Characteristic");
+        attributes.put(LED_SERVICE_UUID_STRING, "LED Service");
 
         /************************** RELICS OF A BYGONE ERA ***************************************/
         // Sample Services.

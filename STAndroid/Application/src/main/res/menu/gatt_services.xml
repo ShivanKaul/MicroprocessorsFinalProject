@@ -26,8 +26,4 @@
           android:title="@string/menu_disconnect"
           android:orderInCategory="101"
           android:showAsAction="ifRoom|withText"/>
-    <item android:id="@+id/menu_led"
-        android:title="LED Options"
-        android:orderInCategory="102"
-        android:showAsAction="ifRoom|withText"/>
 </menu>

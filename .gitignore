@@ -30,6 +30,10 @@ proguard/
 
 # Android Studio captures folder
 captures/
+*.iml
+STAndroid/Application/src/main/res/drawable-*
+STAndroid/Application/src/main/res/
+
 
 #Intellij settings
 .idea/

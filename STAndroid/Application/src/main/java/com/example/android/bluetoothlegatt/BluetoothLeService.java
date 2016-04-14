@@ -111,6 +111,19 @@ public class BluetoothLeService extends Service {
             }
         }
 
+        @Override
+        public void onCharacteristicWrite (BluetoothGatt gatt,
+                               BluetoothGattCharacteristic characteristic,
+                               int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                System.out.println("DEBUG: IN WRITE CALLBACK");
+//                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+            } else {
+                System.out.println("DEBUG: IN WRITE CALLBACK BUT IT FAILED");
+
+            }
+        }
+
 
 
         @Override
@@ -297,6 +310,23 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.readCharacteristic(characteristic);
     }
+
+    /**
+     * Request a write on a given {@code BluetoothGattCharacteristic}. The read result is reported
+     * asynchronously through the {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
+     * callback.
+     *
+     * @param characteristic The characteristic to write
+     */
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
+        }
+        mBluetoothGatt.writeCharacteristic(characteristic);
+    }
+
+
 
     /**
      * Enables or disables notification on a give characteristic.

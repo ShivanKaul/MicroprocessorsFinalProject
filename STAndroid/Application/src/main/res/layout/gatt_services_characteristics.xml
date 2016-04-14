@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,13 +21,21 @@
     <LinearLayout android:orientation="horizontal"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:layout_margin="10dp">
+                  android:layout_margin="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:id="@+id/linearLayout">
+
+        <Space android:layout_width="5dp"
+               android:layout_height="wrap_content"/>
+
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/label_device_address"
                   android:textSize="18sp"/>
-        <Space android:layout_width="5dp"
-               android:layout_height="wrap_content"/>
+
         <TextView android:id="@+id/device_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -36,48 +44,52 @@
     <LinearLayout android:orientation="horizontal"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:layout_margin="10dp">
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/linearLayout"
+        android:layout_toEndOf="@+id/space"
+        android:id="@+id/linearLayout2">
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/label_state"
                   android:textSize="18sp"/>
         <Space android:layout_width="5dp"
                android:layout_height="wrap_content"/>
+
         <TextView android:id="@+id/connection_state"
-                  android:layout_width="match_parent"
+                  android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/disconnected"
-                  android:textSize="18sp"/>
+                  android:textSize="18sp"
+            android:layout_below="@+id/linearLayout" />
 
     </LinearLayout>
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="10dp" />
-
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:id="@+id/table_filler">
-
-    <TableRow android:layout_height="1px" android:background="#BDBDBD">
-        <TextView android:layout_span="2" android:layout_height="1px"
-            android:layout_width="fill_parent" android:text="">
-        </TextView>
-    </TableRow>
-
-    </TableLayout>
+        android:layout_height="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="166dp" />
 
     <Space
         android:layout_width="5dp"
-        android:layout_height="10dp" />
+        android:layout_height="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="187dp"
+        android:id="@+id/space" />
 
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:id="@+id/table">
+        android:id="@+id/table"
+        android:layout_marginLeft="0dp"
+        android:layout_alignBottom="@+id/space"
+        android:layout_alignStart="@+id/linearLayout">
 
 
         <TableRow
@@ -116,12 +128,6 @@
 
         </TableRow>
 
-        <TableRow android:layout_height="1px" android:background="#BDBDBD">
-            <TextView android:layout_span="2" android:layout_height="1px"
-                android:layout_width="fill_parent" android:text="">
-            </TextView>
-        </TableRow>
-
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -140,12 +146,6 @@
                 android:id="@+id/pitch_val"
                 android:layout_gravity="right"
                 android:layout_column="38" />
-        </TableRow>
-
-        <TableRow android:layout_height="1px" android:background="#BDBDBD">
-            <TextView android:layout_span="2" android:layout_height="1px"
-                android:layout_width="fill_parent" android:text="">
-            </TextView>
         </TableRow>
 
         <TableRow
@@ -168,7 +168,8 @@
 
         </TableRow>
 
-        <TableRow android:layout_height="1px" android:background="#BDBDBD">
+        <TableRow android:layout_height="1px" android:background="#BDBDBD"
+            android:layout_width="wrap_content">
             <TextView android:layout_span="2" android:layout_height="1px"
                 android:layout_width="fill_parent" android:text="">
             </TextView>
@@ -176,4 +177,68 @@
 
     </TableLayout>
 
-</LinearLayout>
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable LEDs"
+        android:id="@+id/enable_led"
+        android:checked="false"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/table" />
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioGroup"
+        android:layout_below="@+id/enable_led"
+        android:layout_alignStart="@+id/enable_led">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rotate LEDs Clockwise"
+            android:id="@+id/rotateClockRadio"
+            android:checked="false" />
+
+        <RadioButton
+            android:layout_width="307dp"
+            android:layout_height="wrap_content"
+            android:text="Rotate LEDs Anti Clockwise"
+            android:id="@+id/rotateAClockRadio"
+            android:checked="false" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All On"
+            android:id="@+id/allOnRadio"
+            android:checked="true" />
+    </RadioGroup>
+
+    <SeekBar
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:indeterminate="false"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="49dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Brightness"
+        android:id="@+id/brightness_string"
+        android:layout_above="@+id/seekBar"
+        android:layout_alignEnd="@+id/enable_led" />
+
+    <TextView
+        android:layout_span="2"
+        android:layout_height="3px"
+        android:layout_width="fill_parent"
+        android:text=""
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/linearLayout2" />
+
+</RelativeLayout>
