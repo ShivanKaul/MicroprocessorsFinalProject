@@ -58,13 +58,19 @@ import java.util.UUID;
  * Bluetooth LE API.
  */
 public class DeviceControlActivity extends Activity {
-    int curService = 0, curChar = 0;
-
     BluetoothGattCharacteristic ledCharacteristic = null;
-    Handler handler = new Handler();
-    Runnable runnable = new Runnable() {
+    BluetoothGattCharacteristic accCharacteristic = null;
+    BluetoothGattCharacteristic tempCharacteristic = null;
+    Handler handlerAcc = new Handler();
+    Handler handlerTemp = new Handler();
+    Runnable runnableAcc = new Runnable() {
         public void run() {
-            getBluetoothData(curService, curChar);
+            getBluetoothDataForAcc();
+        }
+    };
+    Runnable runnableTemp = new Runnable() {
+        public void run() {
+            getBluetoothDataForTemp();
         }
     };
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
@@ -86,7 +92,9 @@ public class DeviceControlActivity extends Activity {
 
 
     private TextView mConnectionState;
-    private TextView mDataField;
+    private TextView mTemp;
+    private TextView mPitch;
+    private TextView mRoll;
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
@@ -95,7 +103,7 @@ public class DeviceControlActivity extends Activity {
 
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-//    private ArrayList<BluetoothGattCharacteristic> mGattWriteCharas =
+    //    private ArrayList<BluetoothGattCharacteristic> mGattWriteCharas =
 //            new ArrayList<BluetoothGattCharacteristic>();
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
@@ -152,21 +160,6 @@ public class DeviceControlActivity extends Activity {
         }
     };
 
-    // If a given GATT characteristic is selected, check for supported features.  This sample
-    // demonstrates 'Read' and 'Notify' features.  See
-    // http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
-    // list of supported characteristic features.
-    private final ExpandableListView.OnChildClickListener servicesListClickListner =
-            new ExpandableListView.OnChildClickListener() {
-                @Override
-                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
-                                            int childPosition, long id) {
-                    curService = groupPosition;
-                    curChar = childPosition;
-                    return true;
-                }
-            };
-
     private void clearUI() {
 //        mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
 //        mDataField.setText(R.string.no_data);
@@ -189,7 +182,9 @@ public class DeviceControlActivity extends Activity {
 //        mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
 //        mGattServicesList.setOnChildClickListener(servicesListClickListner);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
-//        mDataField = (TextView) findViewById(R.id.data_value);
+        mTemp = (TextView) findViewById(R.id.temp_val);
+        mPitch = (TextView) findViewById(R.id.pitch_val);
+        mRoll = (TextView) findViewById(R.id.roll_val);
 
         enableLED = (Switch) findViewById(R.id.enable_led);
         table = (TableLayout) findViewById(R.id.table);
@@ -295,7 +290,8 @@ public class DeviceControlActivity extends Activity {
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
-
+        runnableAcc.run();
+        runnableTemp.run();
     }
 
     @Override
@@ -380,7 +376,14 @@ public class DeviceControlActivity extends Activity {
 
     private void displayData(String data) {
         if (data != null) {
-            mDataField.setText(data);
+            // If accelerometer data
+            String[] accData = data.split(",");
+            if (accData.length > 1) {
+                mRoll.setText(accData[0]);
+                mPitch.setText(accData[1]);
+            }
+            // else
+            else mTemp.setText(data);
         }
     }
 
@@ -432,7 +435,19 @@ public class DeviceControlActivity extends Activity {
                 if (charString.contains("LED")) {
                     System.out.println("LED is set");
                     ledCharacteristic = gattCharacteristic;
+                    continue;
                 }
+                else if (charString.contains("Acceleration")) {
+                    System.out.println("Acc char is set");
+                    accCharacteristic = gattCharacteristic;
+                    continue;
+                }
+                else if (charString.contains("Temperature")) {
+                    System.out.println("TEmp char is set");
+                    tempCharacteristic = gattCharacteristic;
+                    continue;
+                }
+
                 charas.add(gattCharacteristic);
                 currentCharaData.put(
                         LIST_NAME, charString);
@@ -466,13 +481,10 @@ public class DeviceControlActivity extends Activity {
         return intentFilter;
     }
 
-    public void getBluetoothData(int curService, int curChar) {
-        // Code goes here
-        // For all characteristics
-        if (mGattCharacteristics != null) {
-            final BluetoothGattCharacteristic characteristic =
-                    mGattCharacteristics.get(curService).get(curChar);
-            final int charaProp = characteristic.getProperties();
+    public void getBluetoothDataForAcc() {
+        if (accCharacteristic != null && mBluetoothLeService != null) {
+            System.out.println("CHARACTERISTIC BEING GOTTEN DATA FOR " + GattAttributes.lookup(accCharacteristic.getUuid().toString(), "unknown"));
+            final int charaProp = accCharacteristic.getProperties();
             if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
                 // If there is an active notification on a characteristic, clear
                 // it first so it doesn't update the data field on the user interface.
@@ -481,32 +493,38 @@ public class DeviceControlActivity extends Activity {
                             mNotifyCharacteristic, false);
                     mNotifyCharacteristic = null;
                 }
-                mBluetoothLeService.readCharacteristic(characteristic);
+                mBluetoothLeService.readCharacteristic(accCharacteristic);
             }
             if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                mNotifyCharacteristic = characteristic;
+                mNotifyCharacteristic = accCharacteristic;
                 mBluetoothLeService.setCharacteristicNotification(
-                        characteristic, true);
+                        accCharacteristic, true);
+            }
+        }
+        handlerAcc.postDelayed(runnableAcc, 1000);
+    }
+
+    public void getBluetoothDataForTemp() {
+        if (tempCharacteristic != null && mBluetoothLeService != null) {
+            System.out.println("CHARACTERISTIC BEING GOTTEN DATA FOR " + GattAttributes.lookup(tempCharacteristic.getUuid().toString(), "unknown"));
+            final int charaProp = tempCharacteristic.getProperties();
+            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                // If there is an active notification on a characteristic, clear
+                // it first so it doesn't update the data field on the user interface.
+                if (mNotifyCharacteristic != null) {
+                    mBluetoothLeService.setCharacteristicNotification(
+                            mNotifyCharacteristic, false);
+                    mNotifyCharacteristic = null;
+                }
+                mBluetoothLeService.readCharacteristic(tempCharacteristic);
+            }
+            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                mNotifyCharacteristic = tempCharacteristic;
+                mBluetoothLeService.setCharacteristicNotification(
+                        tempCharacteristic, true);
             }
         }
 
-        handler.postDelayed(runnable, 1000);
+        handlerTemp.postDelayed(runnableTemp, 1050);
     }
-
-//    public boolean writeCharacteristic(int toWrite) {
-//        final BluetoothGattCharacteristic characteristic =
-//                mGattWriteCharas.get(toWrite);
-//        final int charaProp = characteristic.getProperties();
-//        if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
-////            byte[] value = {0x11, 0x64};
-//            // define ^ this value in characteristic in mgattwritecahras
-//            if (mNotifyCharacteristic != null) {
-//                mBluetoothLeService.setCharacteristicNotification(
-//                        mNotifyCharacteristic, false);
-//                mNotifyCharacteristic = null;
-//            }
-//            mBluetoothGatt.writeCharacteristic(characteristic);
-//        }
-//        return true;
-//    }
 }

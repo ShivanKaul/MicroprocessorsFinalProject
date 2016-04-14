@@ -69,6 +69,10 @@ public class BluetoothLeService extends Service {
 
     public final static UUID UUID_ACC_MEASUREMENT =
             UUID.fromString(GattAttributes.ACC_UUID_STRING);
+    public final static UUID UUID_TEMP_MEASUREMENT =
+            UUID.fromString(GattAttributes.TEMP_UUID_STRING);
+    public final static UUID UUID_DOUBLE_TAP =
+            UUID.fromString(GattAttributes.ACC_UUID_STRING);
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
@@ -172,12 +176,38 @@ public class BluetoothLeService extends Service {
                 float roll = bb1.getShort() / 100.0f;
                 float pitch = bb2.getShort() / 100.0f;
 
-                String movData = "Roll: " + String.valueOf(roll) +
-                        " Pitch: " + String.valueOf(pitch);
+                String movData = String.valueOf(roll) +
+                        "," + String.valueOf(pitch);
                 System.out.println("Mov data is " + movData);
                 intent.putExtra(EXTRA_DATA, movData);
             }
-        }
+        } else if (UUID_TEMP_MEASUREMENT.equals(characteristic.getUuid())) {
+             // temp data
+
+             final byte[] data = characteristic.getValue();
+             int flag = characteristic.getProperties();
+             int format = -1;
+             if ((flag & 0x01) != 0) {
+                 format = BluetoothGattCharacteristic.FORMAT_UINT16;
+                 Log.d(TAG, "Format UINT16.");
+             } else {
+                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
+                 Log.d(TAG, "Format UINT8.");
+             }
+
+             if (data != null && data.length > 0) {
+                 System.out.println("DATA LENGTH: " + data.length);
+                 // actual numbers coming over wire
+                 byte[] rawNumber = Arrays.copyOfRange(data, 0, data.length);
+                 ByteBuffer bb = ByteBuffer.wrap(rawNumber);
+                 bb.order(ByteOrder.LITTLE_ENDIAN);
+
+                 float temp = bb.getShort() / 100.0f;
+                 String tempData = String.valueOf(temp);
+                 System.out.println("Temperature is " + tempData);
+                 intent.putExtra(EXTRA_DATA, tempData);
+             }
+         }
         sendBroadcast(intent);
     }
 
@@ -342,13 +372,6 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // This is specific to Heart Rate Measurement.
-//        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-//                    UUID.fromString(GattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-//            mBluetoothGatt.writeDescriptor(descriptor);
-//        }
     }
 
     /**
