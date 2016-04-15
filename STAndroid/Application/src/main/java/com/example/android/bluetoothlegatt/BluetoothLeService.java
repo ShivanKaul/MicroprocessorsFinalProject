@@ -30,15 +30,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -128,11 +124,9 @@ public class BluetoothLeService extends Service {
                                BluetoothGattCharacteristic characteristic,
                                int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                System.out.println("DEBUG: IN WRITE CALLBACK");
-//                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                Log.d("Bluetooth Service", "Write was successful");
             } else {
-                System.out.println("DEBUG: IN WRITE CALLBACK BUT IT FAILED");
-
+                Log.d("Bluetooth Service", "Write was NOT successful");
             }
         }
 
@@ -151,8 +145,6 @@ public class BluetoothLeService extends Service {
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic)  {
         final Intent intent = new Intent(action);
-
-        System.out.println("HEY WE RECEIVED A NOTIFICATION FOR " + GattAttributes.lookup(characteristic.getUuid().toString(), "nope"));
 
          if (UUID_ACC_MEASUREMENT.equals(characteristic.getUuid())) {
             // If acceleration
@@ -182,7 +174,6 @@ public class BluetoothLeService extends Service {
 
                 String movData = String.valueOf(roll) +
                         "," + String.valueOf(pitch);
-                System.out.println("Mov data is " + movData);
                 intent.putExtra(ACC_DATA, movData);
             }
         } else if (UUID_TEMP_MEASUREMENT.equals(characteristic.getUuid())) {
@@ -200,7 +191,6 @@ public class BluetoothLeService extends Service {
              }
 
              if (data != null && data.length > 0) {
-                 System.out.println("DATA LENGTH: " + data.length);
                  // actual numbers coming over wire
                  byte[] rawNumber = Arrays.copyOfRange(data, 0, data.length);
                  ByteBuffer bb = ByteBuffer.wrap(rawNumber);
@@ -208,7 +198,6 @@ public class BluetoothLeService extends Service {
 
                  float temp = bb.getShort() / 100.0f;
                  String tempData = String.valueOf(temp);
-                 System.out.println("Temperature is " + tempData);
                  intent.putExtra(TEMP_DATA, tempData);
              }
          } else if (UUID_DOUBLE_TAP.equals(characteristic.getUuid())) {

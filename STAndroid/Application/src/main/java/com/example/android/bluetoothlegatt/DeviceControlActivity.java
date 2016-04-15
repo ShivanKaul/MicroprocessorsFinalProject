@@ -17,7 +17,6 @@
 package com.example.android.bluetoothlegatt;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
@@ -30,29 +29,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.CompoundButton;
-import android.widget.ExpandableListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
-import android.widget.SimpleExpandableListAdapter;
 import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * For a given BLE device, this Activity provides the user interface to connect, display data,
@@ -416,8 +407,6 @@ public class DeviceControlActivity extends Activity {
     // on the UI.
     private void displayGattServices(List<BluetoothGattService> gattServices) {
 
-
-        System.out.println("Displaying services!");
         if (gattServices == null) return;
         String uuid = null;
         String unknownServiceString = getResources().getString(R.string.unknown_service);
@@ -457,24 +446,19 @@ public class DeviceControlActivity extends Activity {
                     continue;
                 }
                 if (charString.contains("LED")) {
-                    System.out.println("LED is set");
                     ledCharacteristic = gattCharacteristic;
                     continue;
                 }
                 else if (charString.contains("Acceleration")) {
-                    System.out.println("Acc char is set");
                     accCharacteristic = gattCharacteristic;
                     continue;
                 }
                 else if (charString.contains("Temperature")) {
-                    System.out.println("Temp char is set");
                     tempCharacteristic = gattCharacteristic;
                     continue;
                 } else if (charString.contains("Double Tap")) {
-                    System.out.println("Double Tap is being set");
                     final int charaProp = gattCharacteristic.getProperties();
                     if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-//                        mNotifyCharacteristic = gattCharacteristic;
                         mBluetoothLeService.setNotificationForDoubleTap(gattCharacteristic);
 
                     }
@@ -490,7 +474,6 @@ public class DeviceControlActivity extends Activity {
             mGattCharacteristics.add(charas);
             gattCharacteristicData.add(gattCharacteristicGroupData);
         }
-
     }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
