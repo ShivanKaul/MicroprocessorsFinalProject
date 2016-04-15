@@ -41,6 +41,8 @@ import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +92,7 @@ public class DeviceControlActivity extends Activity {
     private TableLayout table;
 
     private TextView mConnectionState;
+    private TextView valuesToBoard;
     private TextView mTemp;
     private TextView mPitch;
     private TextView mRoll;
@@ -197,6 +200,7 @@ public class DeviceControlActivity extends Activity {
         // Sets up UI references.
         ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
+        valuesToBoard = (TextView) findViewById(R.id.values_to_board);
         mTemp = (TextView) findViewById(R.id.temp_val);
         mPitch = (TextView) findViewById(R.id.pitch_val);
         mRoll = (TextView) findViewById(R.id.roll_val);
@@ -382,6 +386,7 @@ public class DeviceControlActivity extends Activity {
     }
 
     private void setVisibility(final int visibility) {
+        valuesToBoard.setVisibility(visibility);
         enableLED.setVisibility(visibility);
         table.setVisibility(visibility);
         radioButtons.setVisibility(visibility);
@@ -442,6 +447,8 @@ public class DeviceControlActivity extends Activity {
                 uuid = gattCharacteristic.getUuid().toString();
                 String charString = GattAttributes.lookup(uuid, unknownCharaString);
                 // If unknown then don't store
+
+                // TODO: switch statement
                 if (charString.contains(unknownCharaString)) {
                     continue;
                 }

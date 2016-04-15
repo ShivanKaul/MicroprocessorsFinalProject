@@ -248,7 +248,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="Values to board:"
-        android:id="@+id/textView"
+        android:id="@+id/values_to_board"
         android:layout_above="@+id/enable_led"
         android:layout_alignStart="@+id/linearLayout2" />
 
