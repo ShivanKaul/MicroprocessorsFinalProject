@@ -46,7 +46,6 @@ void toggle_anticlockwise(void);
 void toggle_LEDS_off(void);
 void toggle_LEDS_on(void);
 
-
 int CTRL_LEDS = 0;
 int CTRL_PWM = 0;
 int CTRL_PWM_LAST = 0;
@@ -99,7 +98,7 @@ int main (void) {
 	//osThreadTerminate(main_id);
 
 	while(1){
-		printf("CTRL_LEDS = %d, CTRL_PWM = %d\n\n", CTRL_LEDS, CTRL_PWM);
+		//printf("CTRL_LEDS = %d, CTRL_PWM = %d\n\n", CTRL_LEDS, CTRL_PWM);
 		
 		if(CTRL_PWM_LAST != CTRL_PWM){
 			set_pwm(CTRL_PWM);
@@ -120,6 +119,8 @@ int main (void) {
 				toggle_LEDS_on();
 				break;
 		}
+		
+		osDelay(700);
 	}
 }
 
@@ -152,7 +153,7 @@ void toggle_clockwise(void){
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_4);
 	}
 	
-	osDelay(50);
+	//osDelay(50);
 
 	if(cntr > LED_TOGGLE_UNIT*4){
 		cntr = 0;
@@ -161,7 +162,7 @@ void toggle_clockwise(void){
 	
 	cntr++;
 	
-	printf("CNTR = %d\n\n",cntr);
+	//printf("CNTR = %d\n\n",cntr);
 }
 
 void toggle_anticlockwise(void){
@@ -183,7 +184,7 @@ void toggle_anticlockwise(void){
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_1);
 	}
 	
-	osDelay(50);
+	//osDelay(50);
 	
 	if(cntr > LED_TOGGLE_UNIT*4){
 		cntr = 0;
@@ -192,7 +193,7 @@ void toggle_anticlockwise(void){
 	
 	cntr++;
 	
-	printf("CNTR = %d\n\n",cntr);
+	//printf("CNTR = %d\n\n",cntr);
 }
 
 void toggle_LEDS_on(void){
