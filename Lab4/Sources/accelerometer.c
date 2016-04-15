@@ -75,7 +75,6 @@ void calculateAngles (void) {
 	magnitude = sqrt(pow(*out,2) + pow(*(out+1),2) + pow(*(out+2),2));
 	variance = fabs(magnitude - meann);
 	
-	
 	// Check for a double tap
 	if(ENTER_DOUBLE_TAP){
 		if(is_outlier(variance)){
