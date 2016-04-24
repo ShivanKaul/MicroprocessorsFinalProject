@@ -83,10 +83,8 @@ void calculateAngles (void) {
 	convertAccToAngle(acc, angles);
 		
 	DOUBLE_TAP_SIGNAL = detect_double_tap(out);	
-	// Get angles
-	//if (DOUBLE_TAP_SIGNAL>0)
-	//printf("DOUBLE TAP SIGNAL = %d \n\n", DOUBLE_TAP_SIGNAL);
 	
+	// Resend DOUPLE TAP SIGNAL for robustness
 	if(DOUBLE_TAP_SIGNAL){
 		while(ctr < 5){
 			setAcceleration(angles,1);
@@ -95,64 +93,41 @@ void calculateAngles (void) {
 	}else{
 		setAcceleration(angles,0);
 	}
-	
-	
-	
-
 }
 
+/*
+*	State machine to detect double tap
+*/
 int detect_double_tap(float* out){
 	float magnitude = sqrt(pow(*out,2) + pow(*(out+1),2) + pow(*(out+2),2));
 	float variance = fabs(magnitude - meann);
 	
+	// Enter state machine when acceleration magnitude is an outlier
 	if(is_outlier(variance)){
 		ENTER_DOUBLE_TAP = 1;
 	}
 	
+	// First count upwards to a threshold to prevent false positives
 	if(ENTER_DOUBLE_TAP){
 		DOUBLE_TAP_CTR++;
 	}
 	
 	if(DOUBLE_TAP_CTR >= DOUBLE_TAP_CTR_THRES_FIRST){
+		// return True if magnitude is still an outlier
 		if(is_outlier(variance)){
 			printf("DOUBLE TAP %d\n",DOUBLE_TAP_CTR);
-			DOUBLE_TAP_Flag=1;
+			DOUBLE_TAP_CTR = 0;
+			ENTER_DOUBLE_TAP = 0;
 			return 1;
 		}
 		
+		// Compare with second threshold to prevent false positives
 		if(DOUBLE_TAP_CTR >= DOUBLE_TAP_CTR_THRES_SCND){
 			DOUBLE_TAP_CTR = 0;
 			ENTER_DOUBLE_TAP = 0;
-			DOUBLE_TAP_Flag=0;
 		}
 	}
-	
-	//printf("DOUBLE_TAP_CTR = %d \n\n",DOUBLE_TAP_CTR);
-	
-	return 0;
-}
-
-int calc_double_tap_ctr_threshold(float* out){
-	float magnitude = sqrt(pow(*out,2) + pow(*(out+1),2) + pow(*(out+2),2));
-	float variance = fabs(magnitude - meann);
-	
-	if(is_outlier(variance)){
-		DOUBLE_TAP_CTR++;
-	}
-	
-//	else{
-//		printf("DOUBLE TAP = %d\n\n", DOUBLE_TAP_CTR);
-//		DOUBLE_TAP_CTR = 0;
-//	}
-	
-//	if(DOUBLE_TAP_CTR >= DOUBLE_TAP_CTR_THRESHOLD){
-//		if(is_outlier(variance)){
-//			printf("DOUBLE TAP!");
-//			DOUBLE_TAP_CTR = 0;
-//			return 1;
-//		}
-//	}
-	
+		
 	return 0;
 }
 

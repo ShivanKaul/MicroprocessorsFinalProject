@@ -59,20 +59,15 @@ void TIM_LED_PWM_Init(void){
 	
 	__TIM4_CLK_ENABLE();
 	
+	// Set the counter to count upwards to 1000 (= period) 
+	// The counting frequency is TIM4 divided by Prescaler
 	Timinit.Period = 1000; /* 1 MHz to 100 Hz */
 	Timinit.Prescaler = 210; /*  MHz to 1 MHz */
 	Timinit.CounterMode = TIM_COUNTERMODE_UP;
 	Timinit.ClockDivision = TIM_CLOCKDIVISION_DIV4; // default
 	
-	// As mandated by lab
 	TIM_LED_handle.Instance = TIM4;
 	TIM_LED_handle.Init = Timinit;
-	
-	/**
-		TIM_LED_handle.Channel = HAL_TIM_ACTIVE_CHANNEL_1; //default
-		TIM_LED_handle.Lock = HAL_UNLOCKED;  //default
-		TIM_LED_handle.State = HAL_TIM_STATE_RESET; //default
-	**/
 	
 	HAL_TIM_Base_Init(&TIM_LED_handle);
 
@@ -80,21 +75,18 @@ void TIM_LED_PWM_Init(void){
 	TIM_LED_Channel_config.OCMode = TIM_OCMODE_PWM2;    /*!< Specifies the TIM mode.
 																											This parameter can be a value of @ref TIM_Output_Compare_and_PWM_modes */
 
-  TIM_LED_Channel_config.Pulse = 500;        /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
+	// Duty cycle of PWM signal is Pulse / Period.
+	// Initial Duty Cycle = 50%
+	TIM_LED_Channel_config.Pulse = 500;        /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
 																									This parameter can be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF */
 
-  TIM_LED_Channel_config.OCPolarity = TIM_OCPOLARITY_LOW;   /*!< Specifies the output polarity.
+	TIM_LED_Channel_config.OCPolarity = TIM_OCPOLARITY_LOW;   /*!< Specifies the output polarity.
 																						This parameter can be a value of @ref TIM_Output_Compare_Polarity */
   
-  TIM_LED_Channel_config.OCFastMode = TIM_OCFAST_ENABLE;   	/*!< Specifies the Fast mode state.
+	TIM_LED_Channel_config.OCFastMode = TIM_OCFAST_ENABLE;   	/*!< Specifies the Fast mode state.
 																					This parameter can be a value of @ref TIM_Output_Fast_State
 																					@note This parameter is valid only in PWM1 and PWM2 mode. */
-	
-	//HAL_TIM_PWM_MspInit(&TIM_LED_handle);
-	
-	
-	//HAL_TIM_OC_Init(&TIM_LED_handle);
-	
+		
 	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_1);
 	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_2);
 	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_3);
@@ -105,16 +97,12 @@ void TIM_LED_PWM_Init(void){
 	HAL_TIM_Base_Start(&TIM_LED_handle);
 	
 	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_1);
-	//HAL_TIM_OC_Start(&TIM_LED_handle,TIM_CHANNEL_1);
 	
 	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_2);
-	//HAL_TIM_OC_Start(&TIM_LED_handle,TIM_CHANNEL_2);
 	
 	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_3);
-	//HAL_TIM_OC_Start(&TIM_LED_handle,TIM_CHANNEL_3);
 	
 	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_4);
-	//HAL_TIM_OC_Start(&TIM_LED_handle,TIM_CHANNEL_4);
 }
 
 
@@ -294,25 +282,3 @@ void SystemClock_Config(void) {
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
 }
-
-
-/**
-   * @brief Configures the PWM parameters
-   * @param None
-   * @retval None
-   */
-//void init_PWM(void)
-//{
-//	OC_CONFIG.OCMode = TIM_OCMODE_PWM2; //set pulse to 1 when count is equal to CCRx 
-//	OC_CONFIG.OCIdleState =  TIM_OCIDLESTATE_SET;
-//	OC_CONFIG.Pulse = pulse; // ?
-//	OC_CONFIG.OCPolarity = TIM_OCPOLARITY_LOW;  //
-//	OC_CONFIG.OCFastMode = TIM_OCFAST_ENABLE;    // ?
-//	
-//	HAL_TIM_OC_Init(&timmy4);
-//	
-//	HAL_TIM_OC_ConfigChannel(&timmy4, &OC_CONFIG, TIM_CHANNEL_1);
-//	HAL_TIM_OC_ConfigChannel(&timmy4, &OC_CONFIG, TIM_CHANNEL_2);
-//	HAL_TIM_OC_ConfigChannel(&timmy4, &OC_CONFIG, TIM_CHANNEL_3);
-//	HAL_TIM_OC_ConfigChannel(&timmy4, &OC_CONFIG, TIM_CHANNEL_4);
-//}

@@ -90,16 +90,15 @@ int main (void) {
 	// Initialize all threads
 	start_Thread_Bluetooth();
 	start_Thread_ADC(); 
-	//start_Thread_7Seg();
 	start_Thread_Accelerometer();
-	//start_Thread_LED();	
 	
 	osKernelStart();                          /* start thread execution         */
-	//osThreadTerminate(main_id);
 
+	// Control state of LEDs using global variables shared with the bluetooth thread 
 	while(1){
-		//printf("CTRL_LEDS = %d, CTRL_PWM = %d\n\n", CTRL_LEDS, CTRL_PWM);
-		
+
+		// remember the last PWM value 
+		// reset PWM configuration iff PWM value changes
 		if(CTRL_PWM_LAST != CTRL_PWM){
 			set_pwm(CTRL_PWM);
 			CTRL_PWM_LAST = CTRL_PWM;
@@ -120,20 +119,26 @@ int main (void) {
 				break;
 		}
 		
+		// Add delay for better LED toggling
 		osDelay(700);
 	}
 }
 
+/*
+*	Change the duty cycle by changing the PWM Pulse width.
+*/
 void set_pwm(int pwm){
 	TIM_LED_Channel_config.Pulse = pwm*100;
 	
-	//HAL_TIM_PWM_Init(&TIM_LED_handle);
 	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_1);
 	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_2);
 	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_3);
 	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_4);
 }
 
+/*
+*	Toggle clockwise by setting the current LED in the cycle and resetting all others
+*/
 void toggle_clockwise(void){
 	HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_2);
@@ -143,28 +148,24 @@ void toggle_clockwise(void){
 	if(cntr <= LED_TOGGLE_UNIT){
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_1);
 	}else if(cntr <= LED_TOGGLE_UNIT*2 && cntr > LED_TOGGLE_UNIT){
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_1);
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_2);
 	}else if(cntr > LED_TOGGLE_UNIT*2 && cntr <= LED_TOGGLE_UNIT*3){
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_2);
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_3);
 	}else{
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_3);
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_4);
 	}
 	
-	//osDelay(50);
-
+	// Reset counter to restart cycle
 	if(cntr > LED_TOGGLE_UNIT*4){
 		cntr = 0;
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_4);
 	}
 	
 	cntr++;
-	
-	//printf("CNTR = %d\n\n",cntr);
 }
 
+/*
+*	Toggle anti-clockwise by setting the current LED in the cycle and resetting all others
+*/
 void toggle_anticlockwise(void){
 	HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_2);
@@ -174,26 +175,19 @@ void toggle_anticlockwise(void){
 	if(cntr <= LED_TOGGLE_UNIT){
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_4);
 	}else if(cntr <= LED_TOGGLE_UNIT*2 && cntr > LED_TOGGLE_UNIT){
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_4);
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_3);
 	}else if(cntr > LED_TOGGLE_UNIT*2 && cntr <= LED_TOGGLE_UNIT*3){
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_3);
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_2);
 	}else{
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_2);
 		HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_1);
 	}
-	
-	//osDelay(50);
-	
+		
+	// Reset counter to restart cycle
 	if(cntr > LED_TOGGLE_UNIT*4){
 		cntr = 0;
-		//HAL_TIM_PWM_Stop(&TIM_LED_handle, TIM_CHANNEL_1);
 	}
 	
 	cntr++;
-	
-	//printf("CNTR = %d\n\n",cntr);
 }
 
 void toggle_LEDS_on(void){
