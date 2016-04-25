@@ -14,7 +14,7 @@
 #include "stdio.h"
 void Thread_ADC (void const *argument);                 // thread function
 osThreadId tid_Thread_ADC;                              // thread id
-osThreadDef(Thread_ADC, osPriorityAboveNormal, 1, 0);
+osThreadDef(Thread_ADC, osPriorityNormal, 1, 0);
 void poll(void);
 osMutexId  alarm_mutex; 
 osMutexDef (alarm_mutex); 

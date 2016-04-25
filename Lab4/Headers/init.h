@@ -3,7 +3,7 @@
 
 void gpioInit(void);
 void LISInit(void);
-void TIM_LED_Init(void);
+void TIM_LED_PWM_Init(void);
 void TIM_ADC_Init(void);
 void kalman_init(void);
 void matrix_init(void);

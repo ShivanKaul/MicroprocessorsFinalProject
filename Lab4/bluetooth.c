@@ -40,6 +40,9 @@ osThreadId tid_Thread_Bluetooth;
 void Thread_Bluetooth(void const *argument);
 osThreadDef(Thread_Bluetooth, osPriorityRealtime, 1, 0);
 
+extern int CTRL_LEDS;
+extern int CTRL_PWM;
+
 #define data_ready_flag 1
 		osMutexId  disp_mutex; 
 osMutexDef (disp_mutex);
@@ -62,7 +65,9 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite);
   * @retval None
   */
 uint8_t empty[3];
-int data_sent=1, exit_code,ec;
+uint8_t nucleo_data;
+int data_sent=1, data_received=1,exit_code,ec;
+int counter = 0;
 void Thread_Bluetooth(void const *argument){
 	while(1){
 		 // 1 ms 
@@ -72,21 +77,34 @@ void Thread_Bluetooth(void const *argument){
 		uint8_t* testBytesArray;
 		osDelay(1000);
 		if(data_sent){
-		testBytesArray = (uint8_t*) getBluetooth(); //{15,7,3,1,2,1,1,1,3,1,1,1,5,4,3,2};
+		testBytesArray = (uint8_t*) getBluetooth();
 			data_sent=0;
 		}
-		//DELAY
+		
+		if(data_received){
+			data_received = 0;
+		}
+		
+		counter++;
+				
 		exit_code=HAL_SPI_Transmit(&Spi2Handle, testBytesArray, 16, 10000);
-		//ec=HAL_SPI_Receive(&Spi2Handle, empty, 1, 1000);
+		ec=HAL_SPI_Receive(&Spi2Handle, &nucleo_data, 1, 1000);
 		if(exit_code==0){
 			data_sent=1;
 		}
-		printf("hi %d %d",exit_code,ec);
 		
-		printf("values: %d %d %d %d %d\n",*empty, ((uint32_t*)testBytesArray)[0],((uint32_t*)testBytesArray)[1],((uint32_t*)testBytesArray)[2],((uint32_t*)testBytesArray)[3]);
-		//SPI_Write(testBytesArray,12);
-		
-		
+		if(ec == 0){
+			data_received = 1;
+			if(nucleo_data == 0){
+				CTRL_PWM = 0;
+			}else if (nucleo_data < 3){
+				CTRL_PWM = 10;
+				CTRL_LEDS = nucleo_data;
+			}else if(nucleo_data >= 3){
+				CTRL_LEDS = 3;
+				CTRL_PWM = nucleo_data - 3;
+			}
+		}
 	}
 }
 
@@ -133,7 +151,6 @@ void SPI_Write(uint8_t* pBuffer, uint16_t NumByteToWrite)
 
 void SPI_Read(uint8_t* pBuffer, uint16_t NumByteToRead)
 {
-
 
   /* Receive the data that will be read from the device (MSB First) */
   while(NumByteToRead > 0x00)

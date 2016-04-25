@@ -6,15 +6,23 @@
 #include "arm_math.h"
 #include "math.h"
 #include "interthread.h"
+#define DOUBLE_TAP_CTR_THRES_FIRST       1
+#define DOUBLE_TAP_CTR_THRES_SCND        3
 
 // Variables + function names
 osThreadId tid_Thread_Accelerometer;
 void Thread_Accelerometer(void const *argument);
-osThreadDef(Thread_Accelerometer, osPriorityAboveNormal, 1, 0);
+osThreadDef(Thread_Accelerometer, osPriorityNormal, 1, 0);
 void convertAccToAngle(float* acc, float* angles);
 extern arm_matrix_instance_f32 x_matrix,w_matrix,y_matrix;
 int is_outlier(float variance);
 void calculateAngles (void);
+int calc_double_tap_ctr_threshold(float* out);
+int detect_double_tap(float* out);
+
+uint8_t DOUBLE_TAP_SIGNAL = 0;
+int DOUBLE_TAP_CTR = 0,DOUBLE_TAP_Flag=0;
+
 float current_angle;
 
 float ENTER_DOUBLE_TAP;
@@ -40,10 +48,11 @@ int start_Thread_Accelerometer	(void){
   * @retval None
   */
 void Thread_Accelerometer(void const *argument){
+	ENTER_DOUBLE_TAP = 0;
 	while(1){
-	osSignalWait (data_ready_flag,40); 
-	osSignalClear(tid_Thread_Accelerometer,data_ready_flag); 
-	calculateAngles();
+		osSignalWait (data_ready_flag,40); 
+		osSignalClear(tid_Thread_Accelerometer,data_ready_flag); 
+		calculateAngles();
 	}
 	
 }
@@ -60,6 +69,7 @@ void calculateAngles (void) {
 	float angles[3];
 	float magnitude;
 	float variance;
+	int ctr = 0;
 	
 	// NOTE1: We initially read acceleration in the interrupt, but on discussion
 	// with the TA on Friday, we've pushed it over here for the purposes of 
@@ -71,27 +81,54 @@ void calculateAngles (void) {
 	Kalmanfilter_C (out+2, out+2, &kalman_z, 1);
 	arm_mat_mult_f32(&w_matrix,&x_matrix,&y_matrix);
 	convertAccToAngle(acc, angles);
+		
+	DOUBLE_TAP_SIGNAL = detect_double_tap(out);	
 	
-	magnitude = sqrt(pow(*out,2) + pow(*(out+1),2) + pow(*(out+2),2));
-	variance = fabs(magnitude - meann);
+	// Resend DOUPLE TAP SIGNAL for robustness
+	if(DOUBLE_TAP_SIGNAL){
+		while(ctr < 5){
+			setAcceleration(angles,1);
+			ctr++;
+		}
+	}else{
+		setAcceleration(angles,0);
+	}
+}
+
+/*
+*	State machine to detect double tap
+*/
+int detect_double_tap(float* out){
+	float magnitude = sqrt(pow(*out,2) + pow(*(out+1),2) + pow(*(out+2),2));
+	float variance = fabs(magnitude - meann);
 	
+	// Enter state machine when acceleration magnitude is an outlier
+	if(is_outlier(variance)){
+		ENTER_DOUBLE_TAP = 1;
+	}
 	
-	// Check for a double tap
+	// First count upwards to a threshold to prevent false positives
 	if(ENTER_DOUBLE_TAP){
+		DOUBLE_TAP_CTR++;
+	}
+	
+	if(DOUBLE_TAP_CTR >= DOUBLE_TAP_CTR_THRES_FIRST){
+		// return True if magnitude is still an outlier
 		if(is_outlier(variance)){
-			printf("DOUBLE TAP!!");
+			printf("DOUBLE TAP %d\n",DOUBLE_TAP_CTR);
+			DOUBLE_TAP_CTR = 0;
+			ENTER_DOUBLE_TAP = 0;
+			return 1;
 		}
 		
-		ENTER_DOUBLE_TAP = 0;
-	}else{
-		if(is_outlier(variance)){
-			ENTER_DOUBLE_TAP = 1;
+		// Compare with second threshold to prevent false positives
+		if(DOUBLE_TAP_CTR >= DOUBLE_TAP_CTR_THRES_SCND){
+			DOUBLE_TAP_CTR = 0;
+			ENTER_DOUBLE_TAP = 0;
 		}
 	}
 		
-	// Get angles
-	setAcceleration(angles,0);
-
+	return 0;
 }
 
 /**
@@ -140,7 +177,7 @@ float absolute(float x) {
 
 // Helper function
 int is_outlier(float variance){
-	return variance >= 2.25f*stdd ? 1 : 0;
+	return (variance >= 2.50f*stdd) && (variance <= 3.00f*stdd);
 } 
 
 

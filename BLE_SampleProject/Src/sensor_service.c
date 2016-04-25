@@ -687,11 +687,23 @@ fail:
 /**
  * @brief  This function is called attribute value corresponding to 
  *         ledButtonCharHandle characteristic gets modified.
+ * 2 bytes being sent over Bluetooth
+ * 1st:
+	
+         * 00 -> off
+         * 01 -> clockwise
+         * 10 -> anti
+         * 11 -> all on
+       
+ * 2nd: 
+ * 	PWM signal (0 -> 10). Note: if 1st byte is not 3, then PWM is 0.
  * @param  Handle of the attribute
  * @param  Size of the modified attribute data
  * @param  Pointer to the modified attribute data
  * @retval None
  */
+ 
+ 
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
 	PRINTF("IN ATTRIBUTE MODIFIED CB HANDLE\n");	
@@ -699,7 +711,6 @@ void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_da
 	for (count = 0; count < data_length; count++) {
 		PRINTF("DATA: %X\n", att_data[count]);
 	}
-	
 	
   /* If GATT client has modified 'LED button characteristic' value, toggle LED2 */
   if(handle == ledButtonCharHandle + 1){      

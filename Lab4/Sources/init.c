@@ -10,6 +10,8 @@
 LIS3DSH_InitTypeDef LISInitStruct; 
 LIS3DSH_DRYInterruptConfigTypeDef LISIntConfig;
 TIM_HandleTypeDef TIM_LED_handle,TIM_ADC_handle;
+TIM_Base_InitTypeDef Timinit;
+TIM_OC_InitTypeDef TIM_LED_Channel_config;
 kalman_state kalman_x, kalman_y,kalman_z;
 float acc[3],out[4];
 arm_matrix_instance_f32 x_matrix,w_matrix,y_matrix;
@@ -23,6 +25,7 @@ arm_matrix_instance_f32 x_matrix,w_matrix,y_matrix;
 void gpioInit(void) {
 	GPIO_InitTypeDef GPIO_Init_Acc ;
 	
+	
 	// Accelerometer
 	// E0
 	GPIO_Init_Acc.Pin = GPIO_PIN_0 ;
@@ -33,13 +36,74 @@ void gpioInit(void) {
 	// To ensure that active high -> default is set to be low
 	GPIO_Init_Acc.Pull = GPIO_PULLDOWN;
 	HAL_GPIO_Init(GPIOE, &GPIO_Init_Acc);
-	
+
 	// Set priority for the accelerometer
 	HAL_NVIC_SetPriority(EXTI0_IRQn, 2, 0);
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 }
 
+void TIM_LED_PWM_Init(void){
+	
+	GPIO_InitTypeDef GPIO_D;
+	
+	__HAL_RCC_GPIOD_CLK_ENABLE(); // __GPIOD_CLK_ENABLE
+
+	GPIO_D.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+	GPIO_D.Mode = GPIO_MODE_AF_PP;
+	GPIO_D.Alternate = GPIO_AF2_TIM4;
+	GPIO_D.Pull = GPIO_NOPULL;
+	GPIO_D.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	
+	HAL_GPIO_Init(GPIOD,&GPIO_D);
+	
+	__TIM4_CLK_ENABLE();
+	
+	// Set the counter to count upwards to 1000 (= period) 
+	// The counting frequency is TIM4 divided by Prescaler
+	Timinit.Period = 1000; /* 1 MHz to 100 Hz */
+	Timinit.Prescaler = 210; /*  MHz to 1 MHz */
+	Timinit.CounterMode = TIM_COUNTERMODE_UP;
+	Timinit.ClockDivision = TIM_CLOCKDIVISION_DIV4; // default
+	
+	TIM_LED_handle.Instance = TIM4;
+	TIM_LED_handle.Init = Timinit;
+	
+	HAL_TIM_Base_Init(&TIM_LED_handle);
+
+	
+	TIM_LED_Channel_config.OCMode = TIM_OCMODE_PWM2;    /*!< Specifies the TIM mode.
+																											This parameter can be a value of @ref TIM_Output_Compare_and_PWM_modes */
+
+	// Duty cycle of PWM signal is Pulse / Period.
+	// Initial Duty Cycle = 50%
+	TIM_LED_Channel_config.Pulse = 500;        /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
+																									This parameter can be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF */
+
+	TIM_LED_Channel_config.OCPolarity = TIM_OCPOLARITY_LOW;   /*!< Specifies the output polarity.
+																						This parameter can be a value of @ref TIM_Output_Compare_Polarity */
+  
+	TIM_LED_Channel_config.OCFastMode = TIM_OCFAST_ENABLE;   	/*!< Specifies the Fast mode state.
+																					This parameter can be a value of @ref TIM_Output_Fast_State
+																					@note This parameter is valid only in PWM1 and PWM2 mode. */
+		
+	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_1);
+	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_2);
+	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_3);
+	HAL_TIM_PWM_ConfigChannel(&TIM_LED_handle, &TIM_LED_Channel_config, TIM_CHANNEL_4);
+	
+	HAL_TIM_PWM_Init(&TIM_LED_handle);
+	
+	HAL_TIM_Base_Start(&TIM_LED_handle);
+	
+	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_1);
+	
+	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_2);
+	
+	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_3);
+	
+	HAL_TIM_PWM_Start(&TIM_LED_handle, TIM_CHANNEL_4);
+}
 
 
 /**
