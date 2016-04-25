@@ -146,6 +146,7 @@ public class BluetoothLeService extends Service {
                                  final BluetoothGattCharacteristic characteristic)  {
         final Intent intent = new Intent(action);
 
+        // Incoming Bluetooth data parsing
          if (UUID_ACC_MEASUREMENT.equals(characteristic.getUuid())) {
             // If acceleration
             final byte[] data = characteristic.getValue();
@@ -153,10 +154,8 @@ public class BluetoothLeService extends Service {
             int format = -1;
             if ((flag & 0x01) != 0) {
                 format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.d(TAG, "Format UINT16.");
             } else {
                 format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d(TAG, "Format UINT8.");
             }
 
             if (data != null && data.length > 0) {
@@ -177,17 +176,16 @@ public class BluetoothLeService extends Service {
                 intent.putExtra(ACC_DATA, movData);
             }
         } else if (UUID_TEMP_MEASUREMENT.equals(characteristic.getUuid())) {
-             // temp data
+             // Temperature data
 
              final byte[] data = characteristic.getValue();
              int flag = characteristic.getProperties();
              int format = -1;
+             // Setting format
              if ((flag & 0x01) != 0) {
                  format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                 Log.d(TAG, "Format UINT16.");
              } else {
                  format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                 Log.d(TAG, "Format UINT8.");
              }
 
              if (data != null && data.length > 0) {

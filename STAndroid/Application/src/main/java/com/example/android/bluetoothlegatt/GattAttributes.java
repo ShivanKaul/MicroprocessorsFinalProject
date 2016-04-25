@@ -39,14 +39,14 @@ public class GattAttributes {
     private static int[] DOUBLE_TAP_UUID = { 0x09,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
     private static int[] DOUBLE_TAP_SERVICE_UUID = { 0x08,0x36,0x6e,0x80, 0xcf,0x3a, 0x11,0xe1, 0x9a,0xb4, 0x00,0x02,0xa5,0xd5,0xc5,0x1b };
 
-    final static String ACC_SERVICE_UUID_STRING = convertUUIDToString(ACC_SERVICE_UUID);
-    final static String ACC_UUID_STRING = convertUUIDToString(ACC_UUID);
-    final static String LED_SERVICE_UUID_STRING = convertUUIDToString(LED_SERVICE_UUID);
-    final static String LED_UUID_STRING = convertUUIDToString(LED_UUID);
-    final static String TEMP_UUID_STRING = convertUUIDToString(TEMP_UUID);
-    final static String ENV_SERVICE_UUID_STRING = convertUUIDToString(ENV_SERVICE_UUID);
-    final static String DOUBLE_TAP_UUID_STRING = convertUUIDToString(DOUBLE_TAP_UUID);
-    final static String DOUBLE_TAP_SERVICE_UUID_STRING = convertUUIDToString(DOUBLE_TAP_SERVICE_UUID);
+    final static String ACC_SERVICE_UUID_STRING = convertHexUUIDToString(ACC_SERVICE_UUID);
+    final static String ACC_UUID_STRING = convertHexUUIDToString(ACC_UUID);
+    final static String LED_SERVICE_UUID_STRING = convertHexUUIDToString(LED_SERVICE_UUID);
+    final static String LED_UUID_STRING = convertHexUUIDToString(LED_UUID);
+    final static String TEMP_UUID_STRING = convertHexUUIDToString(TEMP_UUID);
+    final static String ENV_SERVICE_UUID_STRING = convertHexUUIDToString(ENV_SERVICE_UUID);
+    final static String DOUBLE_TAP_UUID_STRING = convertHexUUIDToString(DOUBLE_TAP_UUID);
+    final static String DOUBLE_TAP_SERVICE_UUID_STRING = convertHexUUIDToString(DOUBLE_TAP_SERVICE_UUID);
     final static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
 
 
@@ -61,7 +61,8 @@ public class GattAttributes {
         attributes.put(DOUBLE_TAP_UUID_STRING, "Double Tap Characteristic");
     }
 
-    private static String convertUUIDToString(int[] components) {
+    // Utility method to convert from Hex UUID to String representation
+    private static String convertHexUUIDToString(int[] components) {
         String[] hex_strings = new String[16];
         for (int i = 0; i < 16; i++) {
             // Bit of bit fiddling to make sure "2" is printed as "002"
@@ -79,6 +80,7 @@ public class GattAttributes {
         return UUID.fromString(hyphened_uuid).toString();
     }
 
+    // Look up in HashMap
     public static String lookup(String uuid, String defaultName) {
         String name = attributes.get(uuid);
         return name == null ? defaultName : name;

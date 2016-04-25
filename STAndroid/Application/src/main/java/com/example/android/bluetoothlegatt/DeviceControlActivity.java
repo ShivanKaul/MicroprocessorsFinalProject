@@ -63,6 +63,8 @@ public class DeviceControlActivity extends Activity {
     BluetoothGattCharacteristic ledCharacteristic = null;
     BluetoothGattCharacteristic accCharacteristic = null;
     BluetoothGattCharacteristic tempCharacteristic = null;
+    boolean firstTime = true;
+    // Timer threads for reading data
     Handler handlerAcc = new Handler();
     Handler handlerTemp = new Handler();
     Runnable runnableAcc = new Runnable() {
@@ -87,6 +89,7 @@ public class DeviceControlActivity extends Activity {
     private RadioGroup radioButtons;
     private RadioButton allOn;
     private RadioButton clockwise;
+    private RadioButton anticlockwise;
     private SeekBar seekBar;
     private TextView brightness_text;
     private TableLayout table;
@@ -152,6 +155,7 @@ public class DeviceControlActivity extends Activity {
                 // Show all the supported services and characteristics on the user interface.
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                // If receiving data from Service
                 accData = intent.getStringExtra(BluetoothLeService.ACC_DATA);
                 tempData = intent.getStringExtra(BluetoothLeService.TEMP_DATA);
                 turnOn = intent.getStringExtra(BluetoothLeService.TURN_ON);
@@ -210,6 +214,7 @@ public class DeviceControlActivity extends Activity {
         radioButtons = (RadioGroup) findViewById(R.id.radioGroup);
         allOn = (RadioButton) findViewById(R.id.allOnRadio);
         clockwise = (RadioButton) findViewById(R.id.rotateClockRadio);
+        anticlockwise = (RadioButton) findViewById(R.id.rotateAClockRadio);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         // Set max value to make Yusaira happy
         seekBar.setMax(10);
@@ -217,13 +222,14 @@ public class DeviceControlActivity extends Activity {
 
         clearUI();
 
+        final byte [] possibleValues = {0x0, 0x1, 0x2, 0x3};
+
         // Set all off initially
         for(int i = 0; i < radioButtons.getChildCount(); i++){
             ((RadioButton)radioButtons.getChildAt(i)).setEnabled(false);
         }
         seekBar.setEnabled(false);
 
-        final byte [] possibleValues = {0x0, 0x1, 0x2, 0x3};
         /**
          * 00 -> off
          * 01 -> clockwise
@@ -277,6 +283,16 @@ public class DeviceControlActivity extends Activity {
                     // get value from seekbar
                     byte [] toSend = {possibleValues[3], (byte)seekBar.getProgress()};
                     ledCharacteristic.setValue(toSend);
+                } else if (findViewById(radioButtons.getCheckedRadioButtonId()).equals(clockwise)
+                        && isChecked) {
+                    seekBar.setEnabled(false);
+                    byte [] toSend = {possibleValues[1], 0x0};
+                    ledCharacteristic.setValue(toSend);
+                } else if (findViewById(radioButtons.getCheckedRadioButtonId()).equals(anticlockwise)
+                        && isChecked) {
+                    seekBar.setEnabled(false);
+                    byte [] toSend = {possibleValues[2], 0x0};
+                    ledCharacteristic.setValue(toSend);
                 } else {
                     seekBar.setEnabled(false);
                     byte [] toSend = {possibleValues[0], 0x0};
@@ -316,17 +332,20 @@ public class DeviceControlActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        if (mBluetoothLeService != null) {
-            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
+        if (firstTime) {
+            registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+            if (mBluetoothLeService != null) {
+                final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+                Log.d(TAG, "Connect request result=" + result);
+            }
         }
+        firstTime = false;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mGattUpdateReceiver);
+//        unregisterReceiver(mGattUpdateReceiver);
     }
 
     @Override
@@ -447,13 +466,15 @@ public class DeviceControlActivity extends Activity {
                 uuid = gattCharacteristic.getUuid().toString();
                 String charString = GattAttributes.lookup(uuid, unknownCharaString);
                 // If unknown then don't store
-
-                // TODO: switch statement
                 if (charString.contains(unknownCharaString)) {
                     continue;
                 }
+                // Handle different characteristics
                 if (charString.contains("LED")) {
                     ledCharacteristic = gattCharacteristic;
+                    byte [] toSend = {0x0, 0x0};
+                    ledCharacteristic.setValue(toSend);
+                    mBluetoothLeService.writeCharacteristic(ledCharacteristic);
                     continue;
                 }
                 else if (charString.contains("Acceleration")) {
@@ -492,6 +513,7 @@ public class DeviceControlActivity extends Activity {
         return intentFilter;
     }
 
+    // Method to get Bluetooth data for acceleration
     public void getBluetoothDataForAcc() {
         if (accCharacteristic != null && checkIfBluetoothServiceExists() && checkIfConnected()) {
             final int charaProp = accCharacteristic.getProperties();
@@ -513,7 +535,7 @@ public class DeviceControlActivity extends Activity {
         }
         handlerAcc.postDelayed(runnableAcc, 1000);
     }
-
+    // Method to get Bluetooth data for temperature
     public void getBluetoothDataForTemp() {
         if (tempCharacteristic != null && checkIfBluetoothServiceExists() && checkIfConnected()) {
             final int charaProp = tempCharacteristic.getProperties();
@@ -534,6 +556,7 @@ public class DeviceControlActivity extends Activity {
             }
         }
 
+//        handlerTemp.postDelayed(runnableTemp, 1000);
         handlerTemp.postDelayed(runnableTemp, 1050);
     }
 
